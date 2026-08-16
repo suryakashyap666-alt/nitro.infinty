@@ -1,0 +1,370 @@
+{
+  "users": {
+    "test_user_lang": {
+      "language_history": [
+        "hi"
+      ]
+    },
+    "test_user_fix4": {
+      "language_history": [
+        "en"
+      ],
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      },
+      "learning": {
+        "score": 0,
+        "streak": 0,
+        "difficulty_idx": 0,
+        "weak_topics": {
+          "algebra": 0,
+          "geometry": 0,
+          "calculus": 0,
+          "coding": 0,
+          "general": 3
+        },
+        "history": [
+          {
+            "topic": "general",
+            "correct": false
+          }
+        ]
+      },
+      "chat_history": [
+        {
+          "message": "Hello",
+          "reply": "[Teacher] [Strict Teacher] I can teach and adapt to your level.\nTopic detected: general.\nChoose: \n- (A) #solve <your problem> (math)\n- (B) #code <what to build> (coding)\n- (C) #question <easy/medium/hard + IIT/CBSE> (exam trainer)\n- (D) Tell me what you want to learn, and I’ll tailor the next step.\n\nIf you share your attempt, I’ll teach where to improve in general.",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-05-16T05:20:29.249461+00:00"
+        }
+      ]
+    },
+    "test_user_langX": {
+      "language_history": [
+        "hi"
+      ],
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      },
+      "learning": {
+        "score": 0,
+        "streak": 0,
+        "difficulty_idx": 0,
+        "weak_topics": {
+          "algebra": 0,
+          "geometry": 0,
+          "calculus": 0,
+          "coding": 0,
+          "general": 3
+        },
+        "history": [
+          {
+            "topic": "general",
+            "correct": false
+          }
+        ]
+      },
+      "chat_history": [
+        {
+          "message": "नमस्ते",
+          "reply": "[Teacher] [Strict Teacher] I can teach and adapt to your level.\nTopic detected: general.\nChoose: \n- (A) #solve <your problem> (math)\n- (B) #code <what to build> (coding)\n- (C) #question <easy/medium/hard + IIT/CBSE> (exam trainer)\n- (D) Tell me what you want to learn, and I’ll tailor the next step.\n\nIf you share your attempt, I’ll teach where to improve in general.",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-05-16T05:20:46.031358+00:00"
+        }
+      ]
+    },
+    "user1": {
+      "language_history": [
+        "en"
+      ],
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      },
+      "profession": {
+        "name": "Accountant",
+        "level": "beginner"
+      },
+      "profession_interests": [
+        "Accountant"
+      ],
+      "profession_workflows": [
+        "I am an accountant. help me with workflow"
+      ],
+      "profession_learning": {
+        "request_type": "workflow",
+        "profession": "Accountant"
+      }
+    },
+    "guest_af0fc6388d68c_19fb3c998a3": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_9d91ede48cb97_19fb3cf3884": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_6e18d22c60f1d_19fb3d1902d": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "test_guest": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_782a7b7080b1a8_19fb3d9c343": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_e2daeace250fa8_19fb40672fa": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_56e0bb8dc4879_19fc1879e01": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_58d4f81d83fb48_19fc190a58f": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_test": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      },
+      "language_history": [
+        "en"
+      ],
+      "memory_graph": {
+        "nodes": {
+          "interaction:1785661509:-6710555359032987416": {
+            "meta": {
+              "type": "interaction",
+              "topic": "general",
+              "kind": "chat"
+            },
+            "ts": "2026-08-02T09:05:09.500390+00:00"
+          },
+          "topic:general": {
+            "meta": {
+              "type": "topic",
+              "label": "general"
+            },
+            "ts": "2026-08-07T09:24:59.379796+00:00"
+          },
+          "interaction:1786094699:-9153361070538276224": {
+            "meta": {
+              "type": "interaction",
+              "topic": "general",
+              "kind": "chat"
+            },
+            "ts": "2026-08-07T09:24:59.252525+00:00"
+          },
+          "interest:general": {
+            "meta": {
+              "type": "interest",
+              "label": "general"
+            },
+            "ts": "2026-08-07T09:24:59.650805+00:00"
+          }
+        },
+        "edges": {
+          "interaction:1785661509:-6710555359032987416": [
+            {
+              "to": "topic:general",
+              "relation": "about",
+              "ts": "2026-08-02T09:05:09.802598+00:00"
+            }
+          ],
+          "interaction:1786094699:-9153361070538276224": [
+            {
+              "to": "topic:general",
+              "relation": "about",
+              "ts": "2026-08-07T09:24:59.514320+00:00"
+            },
+            {
+              "to": "interest:general",
+              "relation": "related_interest",
+              "ts": "2026-08-07T09:24:59.786371+00:00"
+            }
+          ]
+        }
+      },
+      "learning_interests": [
+        "general"
+      ]
+    },
+    "guest_f48f0bca6de05_19fc1b86bbb": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    }
+  },
+  "bots": {
+    "math_tutor": {
+      "name": "Math Tutor",
+      "description": "Advanced math solving with emotional, step-by-step teaching. Generates practice papers and question sets, supports IIT/CBSE teaching, improves weak topics, and advises while solving.",
+      "skills": [
+        "advanced math solving",
+        "reasoning",
+        "emotional support while teaching",
+        "step-by-step teaching",
+        "practice paper generation",
+        "question generation",
+        "IIT/CBSE teaching",
+        "weak topic improvement",
+        "advising/helping"
+      ],
+      "ratings": 4.8,
+      "creator": "Nitro AI",
+      "category": "math tutor",
+      "icon": "🧮",
+      "useGlobalLanguageSystem": true,
+      "selectedLanguages": [],
+      "preferredLanguage": null,
+      "voicePreferences": {}
+    }
+  },
+  "puzzle_learning": {
+    "c3073c84446dba68cac6af3e39399e9aa0ff2908c94ea4d8166c511a5480c306": {
+      "puzzle_type": "sudoku",
+      "text": "sudoku 9x9",
+      "image_provided": false,
+      "solving_trick": null,
+      "solving_pattern": null,
+      "reasoning_path": [
+        "hint_requested"
+      ],
+      "hint_logic": "I’ll give a hint first. Provide any missing grid/letters so I can proceed.",
+      "reverse_engineered_logic": null,
+      "full_explanation": null,
+      "final_answer": null,
+      "steps": null,
+      "user_learning": "partial_hint"
+    }
+  },
+  "web_cache": {
+    "what is google": {
+      "ts": "2026-08-02T08:19:14.160639+00:00",
+      "results": [
+        {
+          "title": "Official site",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fabout.google%2F&amp;rut=6ade8b659f723a60e3aaa2c0f3f79f323e103d8613920cf2bf82f8b9f44eb45f",
+          "snippet": "Google",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Google - Wikipedia",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FGoogle&amp;rut=0506b94b747ffc874191244ec789599708f0c404c3e659edc939f646c80a0899",
+          "snippet": "Google is a multinational technology company specializing in Internet-related services and products, including search engines, online advertising, and software.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "About Google: Our products, technology and company information",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fabout.google%2F&amp;rut=6ade8b659f723a60e3aaa2c0f3f79f323e103d8613920cf2bf82f8b9f44eb45f",
+          "snippet": "Learn more about Google. Explore our innovative AI products and services, and how we&#x27;re using technology to help improve lives around the world.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Google Search - Wikipedia",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FGoogle_Search&amp;rut=d8b47651187b0deca7c63aa265e15ed5b38bbd7ff78eef626e8bff83717a496e",
+          "snippet": "Google Search (also known simply as Google or google.com) is a search engine operated by Google. It allows users to search or ask for information by entering keywords or phrases on a website page or in an installed application program.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Google Search - What Is Google Search And How Does It Work",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.google.com%2Fintl%2Fen_us%2Fsearch%2Fhowsearchworks%2F&amp;rut=a0979e59e76c15cc24b308c0d35e051d2d07ea972b2e72804c8482cd27816b01",
+          "snippet": "Uncover what Google Search is, how it works, and the approach Google has taken to make the world&#x27;s information accessible to everyone.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Google | History &amp; Facts; Products &amp; Services | Britannica Money",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.britannica.com%2Fmoney%2FGoogle%2DInc&amp;rut=45738fa7632d87e11ec8934ccabbe525ed1fdb4b1a2a52133752b675f027ccfc",
+          "snippet": "Google is an American search engine company, founded in 1998 by Sergey Brin and Larry Page. Since 2015, Google has been a subsidiary of the holding company Alphabet, Inc. More than 70% of worldwide online search requests are handled by Google, placing it at the heart of most Internet users&#x27; experience. It is one of the world&#x27;s most prominent brands. Its headquarters are in Mountain View ...",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        }
+      ]
+    },
+    "Hello, how are you?": {
+      "ts": "2026-08-02T08:51:40.626319+00:00",
+      "results": [
+        {
+          "title": "Hello! | Kids Greeting Song and Feelings Song | Super Simple Songs",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DtVlcKp3bWH8&amp;rut=e78ce596d24e53bbff13a5c2a67578be3e4275534d1ef4227ae354c7a5e6d9f1",
+          "snippet": "Get the Super Simple App! http://bit.ly/TheSuperSimpleApp Start off your lesson with &quot;Hello!&quot;, a fun and energetic song to talk about how you feel as you g...",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Hello Song for Kids | Greeting Song for Kids | The Singing Walrus",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DgghDRJVxFxU&amp;rut=dbb3ebbf7c902f352f8e4504e9e64981fda3958c089f91f3dc755a56db7af4f2",
+          "snippet": "Hello Song for Kids | Greeting Song for Kids | The Singing Walrus The Singing Walrus - English Songs For Kids 3.88M subscribers Subscribed",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Hello! How are you? Super Simple Songs - YouTube",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DpLgS3pDtCGE&amp;rut=1d8fe82c5b3542bfd2a47c4e9654a9f04955b1ff5b3f8938716e97089ca62619",
+          "snippet": "Hello!Hello! Hello, how are you? (Repeat)I&#x27;m good!I&#x27;m great!I&#x27;m wonderful!(Repeat)Hello!Hello!Hello, how are you?(Repeat)I&#x27;m tired.I&#x27;m hungry.I&#x27;m not so good...",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Hello, How Are You - Wikipedia",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FHello%2C_How_Are_You&amp;rut=fdc6dab5845c26987f6d44e91955b04907972d7c95946b0dd24f732565d38ab6",
+          "snippet": "Hello, How Are You ... &quot; Hello, How Are You &quot; is a 1968 song and single by Australian rock group the Easybeats, which was written by band members George Young and Harry Vanda.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "&quot;How are you?&quot; | 60+ Different Ways to Ask &amp; Respond to &quot;How are you?&quot;",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Feslforums.com%2Fhow%2Dare%2Dyou%2F&amp;rut=63db21e32311e92e058245830aec67ae1bf007ea75b82449f2462598c77a23dc",
+          "snippet": "However, you can also use the question as a simple greeting and move on to a different topic of conversation. Ways to Ask &quot;How are you?&quot; To ask &quot;how are you?&quot;, you can use any of the phrases I provided in my previous responses. Some examples include &quot;How are you doing?&quot;, &quot;How are you feeling?&quot;, and &quot;What&#x27;s been going on?&quot;.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Hello! - Super Simple Songs",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fsupersimple.com%2Fsong%2Fhello%2F&amp;rut=f932e0649fa742601cfde7d6fd59f3ac605fc19d5a8474f1292afe767c612f9f",
+          "snippet": "Start off your lesson with &quot;Hello!&quot;, a fun and energetic song to talk about how you feel as you greet each other.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        }
+      ]
+    }
+  }
+}

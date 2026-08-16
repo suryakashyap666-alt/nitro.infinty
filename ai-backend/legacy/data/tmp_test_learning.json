@@ -1,0 +1,50 @@
+{
+  "users": {
+    "user1": {
+      "language_history": [
+        "en"
+      ],
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      },
+      "chat_history": [
+        {
+          "message": "#quiz english",
+          "reply": "[English] Quick quiz (medium) in English (Language, Literature & Moral Science): Which option is correct about 'literature'?\nA) It is a relevant sub-skill\nB) It is not related\nC) It changes every time\n\n(Reply using #answer correct:true or correct:false to update your learning.)",
+          "emotion": "neutral",
+          "topic": "education",
+          "ts": "2026-05-20T05:01:47.115224+00:00"
+        },
+        {
+          "message": "#answer correct:true",
+          "reply": "[English] [Teacher] I received your answer. To evaluate it precisely, paste your full solution steps. Then use this format (optional): \n#answer <your answer> Expected: <expected final answer>\nOnce I have the expected final answer, I’ll check correctness and teach where it goes wrong.\n\nIf you share your attempt, I’ll teach where to improve in general.",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-05-20T05:02:38.305162+00:00"
+        }
+      ],
+      "learning": {
+        "correct_answers": 1,
+        "total_attempts": 1,
+        "learning_style": "mixed",
+        "learning_speed_ema": 0.625,
+        "weak_score": 0,
+        "strong_score": 1,
+        "difficulty_idx": 1,
+        "streak": 1,
+        "history": [
+          {
+            "subject_id": "mathematics",
+            "kind": "quiz",
+            "correct": true,
+            "learning_time_s": null,
+            "learning_style": "mixed",
+            "speed_ema": 0.625,
+            "difficulty": "medium"
+          }
+        ]
+      }
+    }
+  }
+}

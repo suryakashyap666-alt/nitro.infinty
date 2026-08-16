@@ -1,0 +1,40 @@
+# Sample Prometheus scrape config for Nitro AI metrics
+# Add this to your prometheus.yml global scrape_configs section
+
+global:
+  scrape_interval: 30s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'nitro-ai'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: '/metrics/prom'
+    
+    # Option 1: API Key via Bearer token (recommended)
+    authorization:
+      type: Bearer
+      credentials: 'YOUR_METRICS_API_KEY_HERE'
+    
+    # Option 2: API Key via X-API-Key header
+    # Add this if you prefer to use custom header instead of Bearer token
+    # relabel_configs:
+    #   - source_labels: [__address__]
+    #     regex: '.*'
+    #     target_label: '__meta_api_key'
+    #     replacement: 'YOUR_METRICS_API_KEY_HERE'
+    # metric_relabel_configs:
+    #   - source_labels: [__meta_api_key]
+    #     regex: '.*'
+    #     target_label: 'X-API-Key'
+    
+    # Optional: scrape interval override for this job
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+# Environment variables required on Nitro AI backend:
+# METRICS_API_KEY=YOUR_METRICS_API_KEY_HERE
+# METRICS_FLUSH_INTERVAL=30 (optional, default: 30 seconds)
+# METRICS_WEBHOOK_URL=http://example.com/webhook (optional)
+# METRICS_WEBHOOK_SECRET=your_secret_key (optional, used for HMAC signing)

@@ -1,0 +1,370 @@
+{
+  "users": {
+    "guest_1fe49a2ac4b844829fba6e695bc5efc2": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_3d6a70b0891f42c59459f522df770b30": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_40d45ae5883d48e0a1f95facc303f8bc": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_057b72866cbd45df9e96b41095230e87": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_c1e0c448ea7749909002593d325648ef": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_c911d07be9f0479ba1e7e8937e678b0f": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_606d3716b0dd4dc489fef2cc441c4d2b": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_d8bff363980d4a4e8584efbf72ab0fbc": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_6c30f6c58ae5440d85a99f6ad32e44a7": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_b18ee844a1744c3daa0a717af34aace3": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_db222f20141149c6859281b7168f0e2c": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_5737b16567c34884ba931be6662fa442": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_863b4f636c7849448da270cdc1f02c64": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_7ab6ae14772d424bb2a8f234a471c8a5": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_c27fb090adcf49f4acb678c40969c1e2": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_ee039c88c21247318c4c4db630f1e0f7": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_3a30bd7ba6b04ef8a4f5f0d662df4551": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_c3976161eefa47f7ab4b676cda23095f": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_533931e8baa549e7bfc5762f2d9247a1": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_f6813cf91a31415daa17ad6cbb051b3f": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_55d7c0fe2870487cb2de1da18d57b4c0": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_12c3ab19e3ca447a9bb1b8fe0a690555": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_78050955f8f64f7e875a2d63e29162f0": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_09e028d4d7724c6b9449383d3c82a5be": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_d6ea35d5278d4260b9c741ef15ba8b04": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_95cfb5748a7a4fc99be3a6d0e85c1477": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_450d73d86c7d4d7da30e364513d8a4fb": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_9278305ff43b4d80a08e1e2844d26da0": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_4fa61d804e684c4db11575637f32046e": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_dbb27a2f0cd34b1186f859715507a4d9": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_d77f23db636e4ff5a6d679ca745aac36": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_84e11ad253d844a19457b86877b65848": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_104b81e20a9f4147b3b8743f9ef2d727": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_7eb62a363e994fdbb4dd47940992bfdd": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_5af6a3f7214c449187e96f37e7cfbbed": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_7b9a9835c83e46809a68368c95b1e9b6": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_d9a1af67e725459d83f0384f777a647b": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_c23a000ef1784ec5898f6b37a850355a": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_3b10a8ea9d2448b58e11a6673c07dce0": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_5c59fc318f6b4aaeae965607f0e69b3e": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_598fbb815a9d4f448872a3f6ab855336": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_9b11dcd889e74e969228ed8f9b6dacfd": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_8c783229640d4906bd6d7d12201e8275": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_1eaae11c6c77468ab8eff9be796179f4": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    },
+    "guest_432de7c4df02482fbcdd6131479a700f": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      }
+    }
+  },
+  "web_cache": {
+    "if x=10 and a = 20 what is x+a": {
+      "ts": "2026-08-14T14:28:49.073713+00:00",
+      "results": [
+        {
+          "title": "Math Solver - Trusted Online AI Math Calculator | Symbolab",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.symbolab.com%2F&amp;rut=acc16ce634feb0aea1538ec6d20dbc6d2cd725682bb3527fa928055808c608d7",
+          "snippet": "Symbolab: equation search and math solver - solves algebra, trigonometry and calculus problems step by step",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "solve form - Step-by-Step Math Problem Solver",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fquickmath.com%2F&amp;rut=1e5879e8713abe46a7a03bf55d14fc8f52b1d0ce4c481ecb85ba00090cbfcd8d",
+          "snippet": "The equations section lets you solve an equation or system of equations. You can usually find the exact answer or, if necessary, a numerical answer to almost any accuracy you require.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Solve for x Calculator - Mathway",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.mathway.com%2FCalculator%2Fsolve%2Dfor%2Dx%2Dcalculator&amp;rut=d7f0a873f8dc7a2d0455cc23642a82cca54fee8bac7b0ab9ee9f3bc9c61239af",
+          "snippet": "The solve for x calculator allows you to enter your problem and solve the equation to see the result. Solve in one variable or many.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Mathway | Algebra Problem Solver",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.mathway.com%2Falgebra&amp;rut=db0aec83cdee55f059ab38cc3ab4f46919ebf3eb3b000384e11d7fdb6c4450b6",
+          "snippet": "Free math problem solver answers your algebra homework questions with step-by-step explanations.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Tiger Algebra - A Free, Online Algebra Solver and Calculator",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.tiger%2Dalgebra.com%2Fen%2F&amp;rut=b4515c779ed062ee065e4a6c7eb71223baab5214562cbe20ebdd8263caae8f94",
+          "snippet": "Free Algebra Solver and Algebra Calculator showing step by step solutions. No Download or Signup. Available as a mobile and desktop website as well as native iOS and Android apps.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "AI Math Solver - AllMath",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.allmath.com%2F&amp;rut=3ffd3a50802ed649a6f129a79115603c34f3a148bcdad4c41ba05c5aceb6abf8",
+          "snippet": "AllMath is an AI math solver that instantly solves algebra, calculus, or any math problem. Type or upload a photo to get free step-by-step solutions.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        }
+      ]
+    },
+    "x=10\nz=20\nso what is x+z": {
+      "ts": "2026-08-14T14:57:19.053387+00:00",
+      "results": [
+        {
+          "title": "Math Solver - Trusted Online AI Math Calculator | Symbolab",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.symbolab.com%2F&amp;rut=acc16ce634feb0aea1538ec6d20dbc6d2cd725682bb3527fa928055808c608d7",
+          "snippet": "Symbolab: equation search and math solver - solves algebra, trigonometry and calculus problems step by step",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "X + Y = 10, X + Z = 20, Y + Z = 24, what is X + Y + Z - Wyzant",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.wyzant.com%2Fresources%2Fanswers%2F178765%2Fx_y_10_x_z_20_y_z_24_what_is_x_y_z&amp;rut=2c7c957247ba0810833ce1b165cfbc35eae3f7edb37beb064a7d8f1b30fe100c",
+          "snippet": "Factoring out the 2, we have 2 (X + Y + Z) = 54, and dividing both sides by 2 reveals that X + Y + Z = 27.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "if x= 10 and z=-20 what is |x+z|? | Wyzant Ask An Expert",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.wyzant.com%2Fresources%2Fanswers%2F722841%2Fif%2Dx%2D10%2Dand%2Dz%2D20%2Dwhat%2Dis%2Dx%2Dz&amp;rut=7252b8227f29c53e25cdb9f536aee6a95a3c4faf242ea6dd0d88005f727decae",
+          "snippet": "if x= 10 and z=-20 what is |x+z|? Find an Online Tutor Now Choose an expert and meet online. No packages or subscriptions, pay only for the time you need.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "Solve for x Calculator - Mathway",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.mathway.com%2FCalculator%2Fsolve%2Dfor%2Dx%2Dcalculator&amp;rut=d7f0a873f8dc7a2d0455cc23642a82cca54fee8bac7b0ab9ee9f3bc9c61239af",
+          "snippet": "The solve for x calculator allows you to enter your problem and solve the equation to see the result. Solve in one variable or many.",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "x+y=10, x+z=20, y+z=24 - Symbolab",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.symbolab.com%2Fsolver%2Fstep%2Dby%2Dstep%2Fx%252By%253D10%252C%2520x%252Bz%253D20%252C%2520y%252Bz%253D24&amp;rut=ef0d3be101787b02f9cd5d5f520c55c01124cb81ddac374e2d7377965227ac7a",
+          "snippet": "Free Pre-Algebra, Algebra, Trigonometry, Calculus, Geometry, Statistics and Chemistry calculators step-by-step",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        },
+        {
+          "title": "SOLUTION: X+Y=10 X+Z=20 Y+Z=24 WHAT IS X+Y+Z - Algebra Homework Help",
+          "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.algebra.com%2Falgebra%2Fhomework%2Fequations%2FEquations.faq.question.973353.html&amp;rut=1d60a717c3cf64c27df24e29845de763283545cdc389725c319f3f1980cc1af0",
+          "snippet": "Lessons Answers archive Click here to see ALL problems on Equations Question 973353: X+Y=10 X+Z=20 Y+Z=24 WHAT IS X+Y+Z Answer by macston (5194) (Show Source):",
+          "domain": "duckduckgo.com",
+          "trusted": false
+        }
+      ]
+    }
+  }
+}
