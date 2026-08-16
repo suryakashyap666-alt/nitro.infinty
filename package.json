@@ -6,6 +6,6 @@
     "build": "cd web-client && npm install && npm run build"
   },
   "dependencies": {
-    "firebase": "^12.13.0"
+    "firebase": "^12.17.1"
   }
 }

@@ -20,18 +20,19 @@ import {
 } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyCiCUguIAiT2IisYLsXis-Cmw5RIRcW8PQ",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "nitro-infinty.firebaseapp.com",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "nitro-infinty",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "nitro-infinty.firebasestorage.app",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "112848617925",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:112848617925:web:14a53b955d4bdff77ccbac",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-0068VVVDBK",
 };
 
 export const firebaseEnabled = Boolean(
   firebaseConfig.apiKey &&
-    firebaseConfig.authDomain &&
-    firebaseConfig.projectId &&
-    firebaseConfig.appId,
+  firebaseConfig.projectId &&
+  firebaseConfig.appId
 );
 
 const firebaseApp = firebaseEnabled ? initializeApp(firebaseConfig) : null;
