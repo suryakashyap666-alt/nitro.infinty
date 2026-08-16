@@ -2,16 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import './styles.css';
 
 /**
- * Normalizes, inspects, and converts any model payload (raw base64, missing MIME headers,
- * raw SVG markup, or broken Data URIs) into a browser-safe, fully renderable Data URI.
+ * Normalizes, inspects, and converts any model payload into a browser-safe Data URI.
  */
 function normalizeAndInspectImagePayload(rawPayload, prompt = '') {
-  console.log('[Nitro Image Debug] Raw payload received:', {
-    type: typeof rawPayload,
-    preview: typeof rawPayload === 'string' ? rawPayload.slice(0, 100) : rawPayload,
-    length: rawPayload?.length || 0,
-  });
-
   if (!rawPayload) return createFallbackCanvasDataUri(prompt);
 
   let data = typeof rawPayload === 'object'
@@ -29,10 +22,8 @@ function normalizeAndInspectImagePayload(rawPayload, prompt = '') {
   if (data.startsWith('<svg') || data.includes('<svg')) {
     try {
       const cleanSvg = data.match(/<svg[\s\S]*?<\/svg>/)?.[0] || data;
-      console.log('[Nitro Image Debug] Encoded raw SVG to base64 Data URI');
       return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(cleanSvg)))}`;
     } catch (e) {
-      console.warn('[Nitro Image Debug] SVG conversion error, using URI encode:', e);
       return `data:image/svg+xml;utf8,${encodeURIComponent(data)}`;
     }
   }
@@ -46,7 +37,6 @@ function normalizeAndInspectImagePayload(rawPayload, prompt = '') {
   if (data.startsWith('data:image/')) {
     const [header, body] = data.split(',');
     if (body) {
-      // If it's an unencoded UTF-8 SVG with '#', base64-encode it so gradient IDs don't break
       if (header.includes('svg+xml') && !header.includes(';base64')) {
         try {
           const cleanSvg = decodeURIComponent(body);
@@ -60,23 +50,19 @@ function normalizeAndInspectImagePayload(rawPayload, prompt = '') {
     return data;
   }
 
-  // 6. Detect magic bytes for raw base64 missing the "data:image/...;base64," prefix
+  // 6. Detect magic bytes for raw base64 missing the prefix
   const cleanBase64 = data.replace(/\s+/g, '');
 
   if (cleanBase64.startsWith('iVBORw0KGgo')) {
-    console.log('[Nitro Image Debug] Attached missing PNG MIME header');
-    return `data:image/png;base64,{cleanBase64}`;
+    return `data:image/png;base64,${cleanBase64}`;
   }
   if (cleanBase64.startsWith('/9j/')) {
-    console.log('[Nitro Image Debug] Attached missing JPEG MIME header');
     return `data:image/jpeg;base64,${cleanBase64}`;
   }
   if (cleanBase64.startsWith('PHN2Zy') || cleanBase64.startsWith('PD94bW')) {
-    console.log('[Nitro Image Debug] Attached missing SVG base64 MIME header');
     return `data:image/svg+xml;base64,${cleanBase64}`;
   }
   if (cleanBase64.startsWith('UklGR')) {
-    console.log('[Nitro Image Debug] Attached missing WEBP MIME header');
     return `data:image/webp;base64,${cleanBase64}`;
   }
 
@@ -85,7 +71,7 @@ function normalizeAndInspectImagePayload(rawPayload, prompt = '') {
 }
 
 /**
- * Generates an active, high-contrast SVG graphic fallback if the source is invalid or unparseable.
+ * High-contrast fallback graphic if image conversion fails.
  */
 function createFallbackCanvasDataUri(prompt = 'Rendered Graphic') {
   const safeText = prompt.slice(0, 45).replace(/[^a-zA-Z0-9 ]/g, '') || 'Rendered Graphic';
@@ -102,30 +88,11 @@ function createFallbackCanvasDataUri(prompt = 'Rendered Graphic') {
         <stop offset='85%' stop-color='#991b1b'/>
         <stop offset='100%' stop-color='#450a0a'/>
       </radialGradient>
-      <filter id='dropShadow' x='-20%' y='-20%' width='140%' height='140%'>
-        <feGaussianBlur in='SourceAlpha' stdDeviation='18'/>
-        <feOffset dx='0' dy='22' result='offsetblur'/>
-        <feFlood flood-color='#000000' flood-opacity='0.7'/>
-        <feComposite in2='offsetblur' operator='in'/>
-        <feMerge>
-          <feMergeNode/>
-          <feMergeNode in='SourceGraphic'/>
-        </feMerge>
-      </filter>
     </defs>
     <rect width='100%' height='100%' fill='url(#bgGrad)'/>
-    
-    <!-- 3D Spherical Rendering -->
-    <ellipse cx='400' cy='630' rx='210' ry='45' fill='black' opacity='0.5' filter='blur(16px)'/>
-    <circle cx='400' cy='390' r='200' fill='url(#ballGrad)' filter='url(#dropShadow)'/>
+    <circle cx='400' cy='390' r='200' fill='url(#ballGrad)'/>
     <circle cx='340' cy='320' r='38' fill='white' opacity='0.45' filter='blur(10px)'/>
-
-    <!-- Header and Prompt Badges -->
-    <rect x='36' y='36' width='728' height='60' rx='14' fill='rgba(15,23,42,0.8)' stroke='rgba(255,255,255,0.1)'/>
-    <text x='56' y='73' fill='#38bdf8' font-size='18' font-weight='800' font-family='sans-serif'>⚡ NITRO INFINITY AI • 3D GRAPHIC</text>
-
-    <rect x='36' y='690' width='728' height='74' rx='14' fill='rgba(15,23,42,0.85)' stroke='rgba(255,255,255,0.1)'/>
-    <text x='56' y='734' fill='#f8fafc' font-size='16' font-weight='600' font-family='sans-serif'>Prompt: ${safeText}</text>
+    <text x='400' y='730' fill='#f8fafc' font-size='20' font-weight='600' font-family='sans-serif' text-anchor='middle'>⚡ NITRO: ${safeText}</text>
   </svg>`;
   return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 }
@@ -142,13 +109,20 @@ function App() {
   const [voiceActive, setVoiceActive] = useState(false);
   const [userApiKey, setUserApiKey] = useState('');
 
-  const backendOrigin = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-  const chatEndpoint = `${backendOrigin.replace(/\/$/, '')}/api/v1/chat`;
+  // ✅ VERCEL COMPATIBLE ENDPOINT:
+  // In development, uses localhost:8000. In Vercel production, uses relative '/api/v1/chat'.
+  const backendOrigin = process.env.REACT_APP_API_URL !== undefined
+    ? process.env.REACT_APP_API_URL
+    : (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '');
+
+  const chatEndpoint = backendOrigin
+    ? `${backendOrigin.replace(/\/$/, '')}/api/v1/chat`
+    : '/api/v1/chat';
 
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  // Background styling setup
+  // Background styling
   useEffect(() => {
     document.title = 'Nitro Infinity AI';
     const publicUrl = process.env.PUBLIC_URL || '';
@@ -167,7 +141,7 @@ function App() {
     };
   }, []);
 
-  // Initial welcome greeting
+  // Initial welcome message
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([
@@ -175,7 +149,7 @@ function App() {
           id: 'welcome',
           role: 'assistant',
           type: 'text',
-          text: 'Welcome to Nitro Infinity AI. Ask any question or request a vivid graphic (e.g., "red ball 3D image 8k").',
+          text: 'Welcome to Nitro Infinity AI. Ask any question, coding task, or request an image (e.g. "a pencil").',
           agent: 'nitro',
           ts: Date.now(),
         },
@@ -306,7 +280,7 @@ function App() {
           try {
             const parsedJson = JSON.parse(dataPayload);
 
-            // 1. Structured Image Payload Detection & Normalization
+            // 1. Structured Image Payload
             if (
               parsedJson.type === 'image' ||
               parsedJson.task === 'image_generation' ||
@@ -346,7 +320,6 @@ function App() {
               '';
 
             if (deltaContent) {
-              // Safety catch: detect raw base64 data URI embedded in text stream
               if (
                 deltaContent.includes('data:image/') ||
                 deltaContent.includes('<svg') ||
@@ -407,7 +380,7 @@ function App() {
         }
       }
 
-      // Flush remaining stream buffer
+      // Flush leftover stream buffer
       if (streamBuffer.trim()) {
         const remainingData = streamBuffer.trim().replace(/^data:\s*/, '').trim();
         if (remainingData && remainingData !== '[DONE]') {
@@ -614,7 +587,6 @@ function App() {
                       </div>
                     )}
                     <div className={isUser ? 'userBubble' : 'assistantBubble'}>
-                      {/* Visual Graphic Rendering Container */}
                       {isImage ? (
                         <div
                           className="imageMessageCard"
@@ -684,7 +656,6 @@ function App() {
                                 borderRadius: '10px',
                               }}
                               onError={(e) => {
-                                console.warn('[Nitro Image] Primary image source failed to render. Activating visual fallback graphic.');
                                 e.currentTarget.src = createFallbackCanvasDataUri(m.prompt || 'Generated Graphic');
                               }}
                             />
