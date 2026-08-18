@@ -471,3 +471,15 @@ Logs are written to `uvicorn.log` when using `nohup`. The `run/` folder stores t
 cd ~/Desktop/Nitro_Decoupled_AI/nitro
 
 ./start.sh 
+
+
+
+
+
+
+
+
+cd ~/Desktop/Nitro_Decoupled_AI/nitro && \
+find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.json" -o -name "*.sh" \) \
+! -path "*/node_modules/*" ! -path "*/.venv/*" ! -path "*/.git/*" \
+-exec echo -e "\n=== FILE: {} ===" \; -exec cat {} \; > ~/Desktop/nitro_updated_codebase2.txt

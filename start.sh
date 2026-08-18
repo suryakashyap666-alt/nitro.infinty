@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# start.sh — runs ai-backend (FastAPI, :8000) and web-client (React, :3000)
-# concurrently, and cleanly kills both when the script is interrupted.
+# start.sh — Starts ai-backend (:8000) and web-client (:3000) concurrently.
+# Cleanly terminates all child processes upon Exit / Ctrl+C.
 
 set -uo pipefail
 
@@ -39,7 +39,7 @@ trap cleanup SIGINT SIGTERM EXIT
 
 echo "==> Starting Nitro Infinity AI (ai-backend + web-client)"
 
-# --- 1. Backend: FastAPI on :8000 ---
+# 1. Backend: FastAPI on :8000
 if [ ! -d "$BACKEND_DIR" ]; then
   echo "ERROR: $BACKEND_DIR not found." >&2
   exit 1
@@ -58,7 +58,6 @@ source .venv/bin/activate
 if [ -f "requirements.txt" ]; then
   pip install --quiet --disable-pip-version-check -r requirements.txt
 else
-  echo "==> No requirements.txt found; installing minimal runtime deps..."
   pip install --quiet --disable-pip-version-check fastapi "uvicorn[standard]" httpx pydantic
 fi
 
@@ -69,7 +68,7 @@ BACKEND_PID=$!
 deactivate
 cd "$PROJECT_ROOT"
 
-# --- 2. Frontend: React (Create React App) on :3000 ---
+# 2. Frontend: React on :3000
 if [ ! -d "$FRONTEND_DIR" ]; then
   echo "ERROR: $FRONTEND_DIR not found." >&2
   kill "$BACKEND_PID" 2>/dev/null
@@ -84,12 +83,6 @@ if [ ! -d "node_modules" ]; then
 fi
 
 echo "==> Launching web-client on port $FRONTEND_PORT..."
-# web-client is a Create React App (react-scripts) project: it takes its
-# port from the PORT env var via "npm start", not a --port flag. It also
-# proxies non-API requests to the backend during dev via package.json's
-# "proxy" field, but REACT_APP_API_URL below is what App.js actually uses
-# to build the /api/v1/chat endpoint, so it must point at the backend
-# explicitly for the SSE fetch() call to work.
 REACT_APP_API_URL="http://localhost:$BACKEND_PORT" PORT="$FRONTEND_PORT" BROWSER=none npm start &
 FRONTEND_PID=$!
 
@@ -101,6 +94,5 @@ echo "==> web-client running:  http://localhost:$FRONTEND_PORT (pid $FRONTEND_PI
 echo "==> Press Ctrl+C to stop both services."
 echo ""
 
-# Wait on both; if either exits unexpectedly, tear down the other via the trap.
 wait -n "$BACKEND_PID" "$FRONTEND_PID"
 cleanup

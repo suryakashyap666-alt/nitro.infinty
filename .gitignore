@@ -1,2 +1,40 @@
+
+# Vercel artifacts
+.vercel
+vercel.json
+.vercelignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Node / React
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+web-client/build/
+web-client/.pnp
+web-client/.pnp.js
+
+# Environment variables & Local logs
 .env
-ai-backend/.env
+.env.local
+.env.*.local
+logs/
+run/
+*.pid
+*.log
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
