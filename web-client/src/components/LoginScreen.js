@@ -124,7 +124,7 @@ export default function LoginScreen({ onSuccess, onGuest, onSaraswati }) {
           <div className="LoginLogo" aria-hidden="true" />
           <div>
             <div className="LoginTitle">Nitro Infinity AI Access</div>
-            <div className="LoginSubtitle">Secure your learning, sync across devices, or chat instantly as guest.</div>
+            <div className="LoginSubtitle">Secure your learning, sync across devices with Firebase, or chat instantly as guest.</div>
           </div>
         </div>
 
@@ -137,31 +137,30 @@ export default function LoginScreen({ onSuccess, onGuest, onSaraswati }) {
               Continue with Phone Number
             </button>
             <button className="ghostBtn LoginOption" type="button" onClick={() => setStage('saraswati')} disabled={loading}>
-              Continue with Saraswati Food Delivery Account
+              Continue with Saraswati Account
             </button>
             <button className="ghostBtn LoginOption" type="button" onClick={onGuest} disabled={loading}>
               Continue as Guest
             </button>
-            <div className="LoginHint">The login screen appears only for new users or on logout.</div>
           </div>
         )}
 
         {stage === 'phone' && (
           <div className="AuthPanel">
-            <div className="AuthLabel">Phone Number?</div>
+            <div className="AuthLabel">Phone Number</div>
             <input
               className="LoginInput"
               type="tel"
               placeholder="+1 555 123 4567"
               value={phoneNumber}
-              onChange={(event) => setPhoneNumber(event.target.value)}
+              onChange={(e) => setPhoneNumber(e.target.value)}
               disabled={loading}
             />
             <button className="primaryBtn LoginAction" type="button" onClick={handleStartPhone} disabled={loading}>
               Send verification code
             </button>
             <button className="ghostBtn LoginAction" type="button" onClick={() => setStage('main')} disabled={loading}>
-              Back to login options
+              Back
             </button>
             <div id="recaptcha-container" />
           </div>
@@ -169,10 +168,10 @@ export default function LoginScreen({ onSuccess, onGuest, onSaraswati }) {
 
         {stage === 'verify' && (
           <div className="AuthPanel">
-            <div className="AuthLabel">For verification it's you, put the code you got</div>
+            <div className="AuthLabel">Enter verification code</div>
             <OtpInput value={otpValue} onChange={setOtpValue} disabled={loading} />
             <button className="primaryBtn LoginAction" type="button" onClick={handleVerifyOtp} disabled={loading}>
-              Verify code and continue
+              Verify code
             </button>
             <button className="ghostBtn LoginAction" type="button" onClick={() => setStage('phone')} disabled={loading}>
               Change phone number
@@ -182,13 +181,13 @@ export default function LoginScreen({ onSuccess, onGuest, onSaraswati }) {
 
         {stage === 'saraswati' && (
           <div className="AuthPanel">
-            <div className="AuthLabel">Saraswati Food Delivery account</div>
+            <div className="AuthLabel">Saraswati Account</div>
             <input
               className="LoginInput"
               type="text"
               placeholder="Account ID"
               value={accountId}
-              onChange={(event) => setAccountId(event.target.value)}
+              onChange={(e) => setAccountId(e.target.value)}
               disabled={loading}
             />
             <input
@@ -196,14 +195,14 @@ export default function LoginScreen({ onSuccess, onGuest, onSaraswati }) {
               type="password"
               placeholder="Password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
             />
             <button className="primaryBtn LoginAction" type="button" onClick={handleSaraswatiLogin} disabled={loading}>
-              Sign in to Saraswati
+              Sign In
             </button>
             <button className="ghostBtn LoginAction" type="button" onClick={() => setStage('main')} disabled={loading}>
-              Back to login options
+              Back
             </button>
           </div>
         )}

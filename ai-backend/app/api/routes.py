@@ -1,14 +1,14 @@
 """
 ai-backend/app/api/routes.py
 
-POST /api/v1/chat — SSE streaming chat completion endpoint.
+POST /api/v1/chat — Main authenticated Nitro AI chat endpoint (SSE Streaming & Direct).
 """
-
 from __future__ import annotations
 
+import json
 from typing import List, Literal, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 
@@ -23,13 +23,12 @@ class ChatMessage(BaseModel):
 
 
 class ChatRequestPayload(BaseModel):
-    providerId: str = Field(..., min_length=1, description="e.g. 'nitro', 'openai', 'groq', 'openrouter'")
-    modelId: str = Field(..., min_length=1, description="Upstream model identifier")
+    modelId: Optional[str] = Field(default="nitro-v1", description="Nitro AI model identifier")
+    providerId: Optional[str] = Field(default="nitro", description="Set to 'nitro'")
+    botId: Optional[str] = Field(default=None, description="Optional custom bot ID")
     messages: List[ChatMessage] = Field(..., min_length=1)
-    userApiKey: Optional[str] = Field(
-        default=None,
-        description="Caller-supplied key for external providers; optional for Nitro.",
-    )
+    userApiKey: Optional[str] = Field(default=None, description="Nitro API Key")
+    stream: Optional[bool] = Field(default=True, description="Enable SSE streaming output")
 
     @field_validator("messages")
     @classmethod
@@ -39,9 +38,9 @@ class ChatRequestPayload(BaseModel):
         return value
 
 
-async def _sse_stream(payload: ChatRequestPayload):
+async def _sse_stream(payload: ChatRequestPayload, api_key: Optional[str]):
     try:
-        engine = resolve_engine(payload.providerId)
+        engine = resolve_engine("nitro")
     except EngineError as exc:
         yield f"event: error\ndata: {exc.message}\n\n"
         yield "data: [DONE]\n\n"
@@ -52,26 +51,33 @@ async def _sse_stream(payload: ChatRequestPayload):
     try:
         async for sse_line in engine.stream_chat(
             messages=raw_messages,
-            model=payload.modelId,
-            api_key=payload.userApiKey,
+            model=payload.modelId or "nitro-v1",
+            api_key=api_key or payload.userApiKey,
+            bot_id=payload.botId,
         ):
             if sse_line:
                 yield sse_line
 
     except EngineError as exc:
         yield f"event: error\ndata: {exc.message}\n\n"
-
     except Exception as exc:  # noqa: BLE001
-        yield f"event: error\ndata: Unexpected server error: {exc}\n\n"
-
+        yield f"event: error\ndata: Nitro engine error: {exc}\n\n"
     finally:
         yield "data: [DONE]\n\n"
 
 
 @router.post("/chat")
-async def chat(payload: ChatRequestPayload) -> StreamingResponse:
+async def chat(
+    payload: ChatRequestPayload,
+    authorization: Optional[str] = Header(None),
+) -> StreamingResponse:
+    # Resolve API Key from Authorization header or payload
+    api_key = payload.userApiKey
+    if authorization and authorization.startswith("Bearer "):
+        api_key = authorization.split(" ", 1)[1].strip()
+
     return StreamingResponse(
-        _sse_stream(payload),
+        _sse_stream(payload, api_key),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

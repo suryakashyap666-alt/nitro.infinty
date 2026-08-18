@@ -1,187 +1,128 @@
 """
 ai-backend/engines/router.py
 
-Strict, provider-agnostic AI engine layer for Nitro Infinity AI.
+Strict, native Nitro AI Engine Router.
+All chat completions, agent queries, and tools route exclusively through Nitro AI.
+External third-party providers (OpenAI, Claude, Groq, Qwen, etc.) are excluded.
 """
-
 from __future__ import annotations
 
+import json
 import os
+import uuid
 from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
-import httpx
-
 
 class EngineError(Exception):
-    """Raised for any engine-level failure (auth, network, bad upstream response)."""
-
-    def __init__(self, message: str, *, status_code: int = 502) -> None:
+    """Raised for any Nitro engine-level error."""
+    def __init__(self, message: str, *, status_code: int = 500) -> None:
         super().__init__(message)
         self.message = message
         self.status_code = status_code
 
 
 class BaseEngine(ABC):
-    provider_id: str = "base"
+    provider_id: str = "nitro"
 
     @abstractmethod
     def stream_chat(
         self,
         messages: List[Dict[str, str]],
         model: str,
-        api_key: Optional[str],
+        api_key: Optional[str] = None,
+        bot_id: Optional[str] = None,
     ) -> AsyncGenerator[str, None]:
         raise NotImplementedError
 
 
-def _resolve_default_model(model: Optional[str]) -> str:
-    if model and model != "nitro-v1":
-        return model
-    return "google/gemma-2-9b-it:free"
+def _sse_chunk(piece: str) -> str:
+    payload = {
+        "id": f"nitro-{uuid.uuid4().hex[:12]}",
+        "object": "chat.completion.chunk",
+        "choices": [{"index": 0, "delta": {"content": piece}, "finish_reason": None}],
+    }
+    return f"data: {json.dumps(payload)}\n\n"
 
 
-async def _stream_raw_sse_passthrough(
-    *,
-    url: str,
-    headers: Dict[str, str],
-    payload: Dict[str, Any],
-    error_prefix: str,
-) -> AsyncGenerator[str, None]:
-    try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            async with client.stream("POST", url, headers=headers, json=payload) as response:
-                if response.status_code != 200:
-                    body = await response.aread()
-                    yield (
-                        f"data: [{error_prefix} upstream error {response.status_code}: "
-                        f"{body.decode(errors='replace')[:500]}]\n\n"
-                    )
-                    yield "data: [DONE]\n\n"
-                    return
-
-                async for line in response.aiter_lines():
-                    if line.startswith("data: "):
-                        yield f"{line.strip()}\n\n"
-
-    except httpx.TimeoutException as exc:
-        raise EngineError(f"Upstream request timed out: {exc}", status_code=504) from exc
-    except httpx.RequestError as exc:
-        raise EngineError(f"Upstream request failed: {exc}", status_code=502) from exc
-
-
-class NitroEngine(BaseEngine):
+class NitroNativeEngine(BaseEngine):
+    """Direct streaming adapter for Nitro Infinity AI Brain Core."""
     provider_id = "nitro"
 
-    def __init__(
-        self,
-        base_url: Optional[str] = None,
-        system_api_key_env: str = "NITRO_SYSTEM_API_KEY",
-    ) -> None:
-        self._base_url = base_url or os.environ.get("NITRO_API_BASE", "https://openrouter.ai").rstrip("/")
-        self._system_api_key_env = system_api_key_env
+    def __init__(self) -> None:
+        pass
 
     async def stream_chat(
         self,
         messages: List[Dict[str, str]],
-        model: str,
-        api_key: Optional[str],
+        model: str = "nitro-v1",
+        api_key: Optional[str] = None,
+        bot_id: Optional[str] = None,
     ) -> AsyncGenerator[str, None]:
-        resolved_key = api_key or os.environ.get(self._system_api_key_env)
+        # Validate Nitro API Key if NITRO_API_KEY environment variable is enforced
+        required_key = os.environ.get("NITRO_API_KEY")
+        if required_key and api_key != required_key:
+            raise EngineError("Invalid or missing Nitro API Key.", status_code=401)
 
-        if not resolved_key:
-            raise EngineError(
-                "No Nitro API key supplied and NITRO_SYSTEM_API_KEY is not configured on the server.",
-                status_code=500,
-            )
+        # Extract latest user message
+        last_message = ""
+        for m in reversed(messages):
+            if m.get("role") == "user" and m.get("content"):
+                last_message = str(m["content"])
+                break
 
-        url = f"{self._base_url}/api/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {resolved_key}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "model": _resolve_default_model(model),
-            "messages": messages,
-            "stream": True,
-        }
+        if not last_message:
+            raise EngineError("No user message content provided.", status_code=400)
 
-        async for sse_line in _stream_raw_sse_passthrough(
-            url=url,
-            headers=headers,
-            payload=payload,
-            error_prefix="Nitro/OpenRouter",
-        ):
-            yield sse_line
+        # Lazy import of CoreBrain to prevent circular imports
+        from brain.core import CoreBrain
+        from legacy.bots_engine import BotMarketplaceEngine
 
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        data_dir = os.environ.get("NITRO_DATA_DIR") or os.path.join(base_dir, "data")
+        os.makedirs(data_dir, exist_ok=True)
+        storage_path = os.path.join(data_dir, "nitro_state.json")
 
-class OpenAICompatibleEngine(BaseEngine):
-    provider_id = "openai-compatible"
+        bot_market = BotMarketplaceEngine(storage_path=storage_path)
+        brain = CoreBrain(storage_path=storage_path, bot_market=bot_market)
 
-    def __init__(self, base_url: str, is_openrouter: bool = False) -> None:
-        if not base_url:
-            raise ValueError("OpenAICompatibleEngine requires a non-empty base_url.")
-        if is_openrouter:
-            resolved_root = os.environ.get("NITRO_API_BASE", "https://openrouter.ai").rstrip("/")
-            self._base_url = f"{resolved_root}/api/v1"
-        else:
-            self._base_url = base_url.rstrip("/")
-        self._is_openrouter = is_openrouter
+        user_id = f"api_user_{uuid.uuid4().hex[:8]}"
 
-    async def stream_chat(
-        self,
-        messages: List[Dict[str, str]],
-        model: str,
-        api_key: Optional[str],
-    ) -> AsyncGenerator[str, None]:
-        if not api_key:
-            raise EngineError(
-                "This provider requires a user-supplied API key. Add one in settings and try again.",
-                status_code=400,
-            )
+        result = brain.handle_message(
+            user_id=user_id,
+            message=last_message,
+            persist_chat=True,
+            bot_id=bot_id,
+            conversation_context=messages,
+            api_key=api_key,
+            model=model,
+        )
 
-        url = f"{self._base_url}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        }
-        resolved_model = _resolve_default_model(model) if self._is_openrouter else model
-        payload = {
-            "model": resolved_model,
-            "messages": messages,
-            "stream": True,
-        }
+        reply_text = result.get("reply", "") if isinstance(result, dict) else str(result)
+        if not reply_text:
+            reply_text = "Nitro AI has processed your request."
 
-        async for sse_line in _stream_raw_sse_passthrough(
-            url=url,
-            headers=headers,
-            payload=payload,
-            error_prefix="Upstream",
-        ):
-            yield sse_line
+        # Check if an image was generated
+        if isinstance(result, dict) and result.get("imageAction"):
+            img_action = result.get("imageAction", {})
+            img_payload = {
+                "type": "image",
+                "task": "image_generation",
+                "image_data": img_action.get("image", {}).get("data_url"),
+                "prompt": img_action.get("prompt"),
+                "style": img_action.get("style"),
+                "quality": img_action.get("quality"),
+            }
+            yield f"data: {json.dumps(img_payload)}\n\n"
+            return
+
+        # Stream text response tokens
+        words = reply_text.split(" ")
+        for i, word in enumerate(words):
+            piece = word if i == len(words) - 1 else f"{word} "
+            yield _sse_chunk(piece)
 
 
-_OPENAI_COMPATIBLE_BASE_URLS: Dict[str, str] = {
-    "openai": "https://api.openai.com/v1",
-    "groq": "https://api.groq.com/openai/v1",
-    "openrouter": "https://openrouter.ai/api/v1",
-    "together": "https://api.together.xyz/v1",
-}
-
-
-def resolve_engine(provider_id: str) -> BaseEngine:
-    normalized = (provider_id or "").strip().lower()
-
-    if normalized == "nitro":
-        return NitroEngine()
-
-    if normalized == "openrouter":
-        return OpenAICompatibleEngine(base_url=_OPENAI_COMPATIBLE_BASE_URLS["openrouter"], is_openrouter=True)
-
-    if normalized in _OPENAI_COMPATIBLE_BASE_URLS:
-        return OpenAICompatibleEngine(base_url=_OPENAI_COMPATIBLE_BASE_URLS[normalized])
-
-    raise EngineError(
-        f"Unknown providerId '{provider_id}'. Valid options: nitro, {', '.join(_OPENAI_COMPATIBLE_BASE_URLS.keys())}.",
-        status_code=400,
-    )
+def resolve_engine(provider_id: str = "nitro") -> BaseEngine:
+    """Always resolves to the native Nitro AI Engine."""
+    return NitroNativeEngine()

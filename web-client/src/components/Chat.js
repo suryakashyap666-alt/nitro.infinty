@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Message from './Message';
 
-function Chat({ messages, onSend, thinking, activeAgent, provider, emotion, onUploadRequest, onVoiceRequest, liveSearchActive }) {
+function Chat({ messages, onSend, thinking, activeAgent, emotion, onUploadRequest, onVoiceRequest }) {
   const scrollerRef = useRef(null);
   const [atBottom, setAtBottom] = useState(true);
 
@@ -36,7 +36,7 @@ function Chat({ messages, onSend, thinking, activeAgent, provider, emotion, onUp
           <span />
           <span />
         </div>
-        <div className="thinkingText">AI is thinking...</div>
+        <div className="thinkingText">Nitro AI is thinking...</div>
       </div>
     );
   }, [thinking]);
@@ -46,22 +46,16 @@ function Chat({ messages, onSend, thinking, activeAgent, provider, emotion, onUp
       <div className="topBadges">
         <div className="badge">
           <span className="badgeLabel">Agent</span>
-          <span className="badgeValue">{activeAgent || 'teacher'}</span>
+          <span className="badgeValue">{activeAgent || 'nitro-core'}</span>
         </div>
         <div className="badge">
-          <span className="badgeLabel">Provider</span>
-          <span className="badgeValue">{provider || 'nitro'}</span>
+          <span className="badgeLabel">Engine</span>
+          <span className="badgeValue">Nitro AI</span>
         </div>
         <div className="badge">
           <span className="badgeLabel">Emotion</span>
           <span className="badgeValue">{emotion || 'neutral'}</span>
         </div>
-        {liveSearchActive ? (
-          <div className="badge liveBadge" title="Live web search in progress">
-            <span className="badgeLabel">Live</span>
-            <span className="badgeValue">Searching…</span>
-          </div>
-        ) : null}
       </div>
 
       <div className="messages" ref={scrollerRef}>
@@ -71,7 +65,7 @@ function Chat({ messages, onSend, thinking, activeAgent, provider, emotion, onUp
         ))}
         {thinking && (
           <div className="assistantRow">
-            <div className="assistantAvatar" aria-hidden="true">🤖</div>
+            <div className="assistantAvatar" aria-hidden="true">⚡</div>
             <div className="assistantBubble">
               <div className="typing">
                 <span />
@@ -92,4 +86,3 @@ function Chat({ messages, onSend, thinking, activeAgent, provider, emotion, onUp
 }
 
 export default Chat;
-

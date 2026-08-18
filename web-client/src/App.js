@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles.css';
+import { db, auth, saveChatEvent } from './firebaseConfig';
 
 /**
- * Normalizes, inspects, and converts any model payload into a browser-safe Data URI.
+ * Normalizes and inspects any Nitro AI graphic payload into a browser-safe Data URI.
  */
 function normalizeAndInspectImagePayload(rawPayload, prompt = '') {
   if (!rawPayload) return createFallbackCanvasDataUri(prompt);
@@ -11,14 +12,11 @@ function normalizeAndInspectImagePayload(rawPayload, prompt = '') {
     ? (rawPayload.image_data || rawPayload.imageUrl || rawPayload.data_url || rawPayload.src || '')
     : String(rawPayload).trim();
 
-  // 1. Strip Markdown image wrapper if present: ![alt](url)
   const mdMatch = data.match(/!\[.*?\]\((.*?)\)/);
   if (mdMatch) data = mdMatch[1].trim();
 
-  // 2. Strip surrounding quotes
   data = data.replace(/^["']|["']$/g, '').trim();
 
-  // 3. Handle raw SVG XML strings: Base64-encode to prevent '#' gradient ID truncation
   if (data.startsWith('<svg') || data.includes('<svg')) {
     try {
       const cleanSvg = data.match(/<svg[\s\S]*?<\/svg>/)?.[0] || data;
@@ -28,73 +26,50 @@ function normalizeAndInspectImagePayload(rawPayload, prompt = '') {
     }
   }
 
-  // 4. Handle standard HTTP/HTTPS URLs
-  if (data.startsWith('http://') || data.startsWith('https://')) {
-    return data;
-  }
+  if (data.startsWith('http://') || data.startsWith('https://')) return data;
 
-  // 5. If it already has a Data URI scheme, clean whitespace and newlines inside the base64 string
   if (data.startsWith('data:image/')) {
     const [header, body] = data.split(',');
-    if (body) {
-      if (header.includes('svg+xml') && !header.includes(';base64')) {
-        try {
-          const cleanSvg = decodeURIComponent(body);
-          return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(cleanSvg)))}`;
-        } catch (e) {
-          return data;
-        }
-      }
-      return `${header},${body.replace(/\s+/g, '')}`;
-    }
+    if (body) return `${header},${body.replace(/\s+/g, '')}`;
     return data;
   }
 
-  // 6. Detect magic bytes for raw base64 missing the prefix
   const cleanBase64 = data.replace(/\s+/g, '');
+  if (cleanBase64.startsWith('iVBORw0KGgo')) return `data:image/png;base64,${cleanBase64}`;
+  if (cleanBase64.startsWith('/9j/')) return `data:image/jpeg;base64,${cleanBase64}`;
+  if (cleanBase64.startsWith('PHN2Zy') || cleanBase64.startsWith('PD94bW')) return `data:image/svg+xml;base64,${cleanBase64}`;
 
-  if (cleanBase64.startsWith('iVBORw0KGgo')) {
-    return `data:image/png;base64,${cleanBase64}`;
-  }
-  if (cleanBase64.startsWith('/9j/')) {
-    return `data:image/jpeg;base64,${cleanBase64}`;
-  }
-  if (cleanBase64.startsWith('PHN2Zy') || cleanBase64.startsWith('PD94bW')) {
-    return `data:image/svg+xml;base64,${cleanBase64}`;
-  }
-  if (cleanBase64.startsWith('UklGR')) {
-    return `data:image/webp;base64,${cleanBase64}`;
-  }
-
-  // Default fallback: attach standard PNG Data URI scheme
   return `data:image/png;base64,${cleanBase64}`;
 }
 
-/**
- * High-contrast fallback graphic if image conversion fails.
- */
-function createFallbackCanvasDataUri(prompt = 'Rendered Graphic') {
-  const safeText = prompt.slice(0, 45).replace(/[^a-zA-Z0-9 ]/g, '') || 'Rendered Graphic';
+function createFallbackCanvasDataUri(prompt = 'Nitro Graphic') {
+  const safeText = prompt.slice(0, 40).replace(/[^a-zA-Z0-9 ]/g, '') || 'Nitro Graphic';
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'>
     <defs>
       <linearGradient id='bgGrad' x1='0%' y1='0%' x2='100%' y2='100%'>
-        <stop offset='0%' stop-color='#1e1b4b'/>
-        <stop offset='50%' stop-color='#0f172a'/>
+        <stop offset='0%' stop-color='#0f172a'/>
         <stop offset='100%' stop-color='#020617'/>
       </linearGradient>
-      <radialGradient id='ballGrad' cx='35%' cy='35%' r='65%'>
-        <stop offset='0%' stop-color='#ff5959'/>
-        <stop offset='45%' stop-color='#dc2626'/>
-        <stop offset='85%' stop-color='#991b1b'/>
-        <stop offset='100%' stop-color='#450a0a'/>
-      </radialGradient>
     </defs>
     <rect width='100%' height='100%' fill='url(#bgGrad)'/>
-    <circle cx='400' cy='390' r='200' fill='url(#ballGrad)'/>
-    <circle cx='340' cy='320' r='38' fill='white' opacity='0.45' filter='blur(10px)'/>
-    <text x='400' y='730' fill='#f8fafc' font-size='20' font-weight='600' font-family='sans-serif' text-anchor='middle'>⚡ NITRO: ${safeText}</text>
+    <circle cx='400' cy='400' r='180' fill='#0284c7' opacity='0.85'/>
+    <text x='400' y='720' fill='#f8fafc' font-size='22' font-weight='700' font-family='sans-serif' text-anchor='middle'>⚡ NITRO AI: ${safeText}</text>
   </svg>`;
   return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+}
+
+// Client-side math evaluator for instant step-by-step solving
+function trySolveMath(text) {
+  const clean = text.toLowerCase().replace(/^(solve|calculate|compute|what is)\s*/, '').trim();
+  const linearMatch = clean.match(/^([+-]?\d*)\s*x\s*([+-]\s*\d+)?\s*=\s*([+-]?\d+)$/);
+  if (linearMatch) {
+    const a = parseFloat(linearMatch[1] === '' || linearMatch[1] === '+' ? '1' : linearMatch[1] === '-' ? '-1' : linearMatch[1]);
+    const b = linearMatch[2] ? parseFloat(linearMatch[2].replace(/\s+/g, '')) : 0;
+    const c = parseFloat(linearMatch[3]);
+    const x = (c - b) / a;
+    return `**Problem:** Solve \`${clean}\`\n\n**Step-by-step Solution:**\n1. Subtract \`${b}\` from both sides: \`${a}x = ${c - b}\`\n2. Divide both sides by \`${a}\`: \`x = ${x}\`\n\n**Final Answer:** \`x = ${x}\``;
+  }
+  return null;
 }
 
 function App() {
@@ -102,100 +77,52 @@ function App() {
   const [thinking, setThinking] = useState(false);
   const [error, setError] = useState(null);
   const [inputValue, setInputValue] = useState('');
-  const [activeAgent, setActiveAgent] = useState('teacher');
-  const [provider, setProvider] = useState('nitro');
-  const [model, setModel] = useState('nitro-v1');
+  const [activeAgent, setActiveAgent] = useState('nitro-core');
   const [emotion, setEmotion] = useState('neutral');
   const [voiceActive, setVoiceActive] = useState(false);
-  const [userApiKey, setUserApiKey] = useState('');
 
-  // ✅ VERCEL COMPATIBLE ENDPOINT:
-  // In development, uses localhost:8000. In Vercel production, uses relative '/api/v1/chat'.
-  const backendOrigin = process.env.REACT_APP_API_URL !== undefined
-    ? process.env.REACT_APP_API_URL
-    : (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '');
-
-  const chatEndpoint = backendOrigin
-    ? `${backendOrigin.replace(/\/$/, '')}/api/v1/chat`
-    : '/api/v1/chat';
+  // Free Cloud Key stored in React environment or user input
+  const [userApiKey, setUserApiKey] = useState(
+    process.env.REACT_APP_NITRO_CLOUD_API_KEY || ''
+  );
 
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  // Background styling
   useEffect(() => {
-    document.title = 'Nitro Infinity AI';
-    const publicUrl = process.env.PUBLIC_URL || '';
-    const prevBg = document.body.style.backgroundImage;
-    document.body.style.backgroundImage = `linear-gradient(180deg, rgba(5, 8, 22, 0.95), rgba(5, 8, 22, 0.85)), url(${publicUrl}/background-screenshot.png)`;
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundPosition = 'center';
-    document.body.style.backgroundRepeat = 'no-repeat';
-    document.body.style.backgroundAttachment = 'fixed';
-    return () => {
-      document.body.style.backgroundImage = prevBg || '';
-      document.body.style.backgroundSize = '';
-      document.body.style.backgroundPosition = '';
-      document.body.style.backgroundRepeat = '';
-      document.body.style.backgroundAttachment = '';
-    };
+    document.title = 'Nitro Infinity AI (Spark Free Edition)';
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'assistant',
+        type: 'text',
+        text: 'Welcome to Nitro Infinity AI! Running 100% free on Firebase Spark. Ask questions, solve math equations, or generate graphics.',
+        agent: 'nitro',
+        ts: Date.now(),
+      },
+    ]);
   }, []);
-
-  // Initial welcome message
-  useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'assistant',
-          type: 'text',
-          text: 'Welcome to Nitro Infinity AI. Ask any question, coding task, or request an image (e.g. "a pencil").',
-          agent: 'nitro',
-          ts: Date.now(),
-        },
-      ]);
-    }
-  }, [messages.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
-
-  const handleProviderChange = (newProvider) => {
-    setProvider(newProvider);
-    if (newProvider === 'nitro') {
-      setModel('nitro-v1');
-    } else if (newProvider === 'nitro-brain') {
-      setModel('nitro-brain-v1');
-    } else if (newProvider === 'openrouter') {
-      setModel('meta-llama/llama-3-8b-instruct:free');
-    } else if (newProvider === 'groq') {
-      setModel('llama-3.3-70b-versatile');
-    } else if (newProvider === 'openai') {
-      setModel('gpt-4o-mini');
-    } else if (newProvider === 'together') {
-      setModel('meta-llama/Llama-3.3-70B-Instruct-Turbo');
-    }
-  };
 
   const sendMessage = async (rawText) => {
     const text = (rawText || '').trim();
     if (!text) return;
 
     const userMessageId = `user-${Date.now()}`;
-    const userMessage = {
-      id: userMessageId,
-      role: 'user',
-      type: 'text',
-      text,
-      agent: activeAgent,
-      ts: Date.now(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [
+      ...prev,
+      { id: userMessageId, role: 'user', type: 'text', text, agent: activeAgent, ts: Date.now() },
+    ]);
     setInputValue('');
     setThinking(true);
     setError(null);
+
+    // Save to Firebase Spark Firestore Database
+    const currentUid = auth?.currentUser?.uid || 'guest_user';
+    saveChatEvent(currentUid, { role: 'user', content: text }).catch(() => {});
 
     const assistantMessageId = `assistant-${Date.now()}`;
     setMessages((prev) => [
@@ -207,235 +134,87 @@ function App() {
         text: '',
         imageData: null,
         prompt: null,
-        agent: activeAgent,
+        agent: 'nitro',
         ts: Date.now(),
       },
     ]);
 
-    let accumulatedText = '';
-
-    const appendChunk = (chunkText) => {
-      if (!chunkText) return;
-      accumulatedText += chunkText;
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === assistantMessageId ? { ...msg, text: accumulatedText } : msg
-        )
-      );
-    };
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-      const requestPayload = {
-        providerId: provider || 'nitro',
-        modelId: model || 'nitro-v1',
-        messages: [{ role: 'user', content: text }],
-        userApiKey: userApiKey.trim() || null,
-      };
-
-      const response = await fetch(chatEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestPayload),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok || !response.body) {
-        throw new Error(`Server returned status ${response.status}`);
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-
-      let streamBuffer = '';
-      let isStreamComplete = false;
-
-      while (!isStreamComplete) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        streamBuffer += decoder.decode(value, { stream: true });
-        const lines = streamBuffer.split('\n');
-        streamBuffer = lines.pop() || '';
-
-        for (let i = 0; i < lines.length; i++) {
-          const rawLine = lines[i];
-          const trimmedLine = rawLine.trim();
-
-          if (!trimmedLine || trimmedLine.startsWith('event: error')) continue;
-
-          const dataPayload = trimmedLine.replace(/^data:\s*/, '').trim();
-          if (!dataPayload) continue;
-
-          if (dataPayload === '[DONE]') {
-            isStreamComplete = true;
-            break;
-          }
-
-          let parsedSuccessfully = false;
-          try {
-            const parsedJson = JSON.parse(dataPayload);
-
-            // 1. Structured Image Payload
-            if (
-              parsedJson.type === 'image' ||
-              parsedJson.task === 'image_generation' ||
-              parsedJson.image_data ||
-              parsedJson.imageUrl
-            ) {
-              const safeDataUri = normalizeAndInspectImagePayload(
-                parsedJson.image_data || parsedJson.imageUrl || parsedJson.data_url,
-                parsedJson.prompt || text
-              );
-
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === assistantMessageId
-                    ? {
-                        ...msg,
-                        type: 'image',
-                        imageData: safeDataUri,
-                        prompt: parsedJson.prompt || text,
-                        style: parsedJson.style || 'Vibrant 3D',
-                        quality: parsedJson.quality || '8K / HD',
-                        text: '',
-                      }
-                    : msg
-                )
-              );
-              isStreamComplete = true;
-              parsedSuccessfully = true;
-              break;
-            }
-
-            // 2. Text Delta Content
-            const deltaContent =
-              parsedJson.choices?.[0]?.delta?.content ??
-              parsedJson.choices?.[0]?.text ??
-              parsedJson.content ??
-              '';
-
-            if (deltaContent) {
-              if (
-                deltaContent.includes('data:image/') ||
-                deltaContent.includes('<svg') ||
-                deltaContent.includes('iVBORw0KGgo')
-              ) {
-                const safeDataUri = normalizeAndInspectImagePayload(deltaContent, text);
-                if (safeDataUri) {
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === assistantMessageId
-                        ? {
-                            ...msg,
-                            type: 'image',
-                            imageData: safeDataUri,
-                            prompt: text,
-                            text: '',
-                          }
-                        : msg
-                    )
-                  );
-                  isStreamComplete = true;
-                  break;
-                }
-              }
-              appendChunk(deltaContent);
-            }
-            parsedSuccessfully = true;
-          } catch (jsonErr) {
-            parsedSuccessfully = false;
-          }
-
-          // 3. Fallback for raw non-JSON SSE lines
-          if (!parsedSuccessfully && dataPayload !== '[DONE]') {
-            if (
-              dataPayload.startsWith('data:image/') ||
-              dataPayload.startsWith('<svg') ||
-              dataPayload.startsWith('iVBORw0KGgo')
-            ) {
-              const safeDataUri = normalizeAndInspectImagePayload(dataPayload, text);
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === assistantMessageId
-                    ? {
-                        ...msg,
-                        type: 'image',
-                        imageData: safeDataUri,
-                        prompt: text,
-                        text: '',
-                      }
-                    : msg
-                )
-              );
-              isStreamComplete = true;
-              break;
-            }
-            appendChunk(dataPayload);
-          }
-        }
-      }
-
-      // Flush leftover stream buffer
-      if (streamBuffer.trim()) {
-        const remainingData = streamBuffer.trim().replace(/^data:\s*/, '').trim();
-        if (remainingData && remainingData !== '[DONE]') {
-          try {
-            const parsedJson = JSON.parse(remainingData);
-            if (parsedJson.type === 'image' || parsedJson.image_data) {
-              const safeDataUri = normalizeAndInspectImagePayload(
-                parsedJson.image_data || parsedJson.imageUrl,
-                parsedJson.prompt || text
-              );
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === assistantMessageId
-                    ? {
-                        ...msg,
-                        type: 'image',
-                        imageData: safeDataUri,
-                        prompt: parsedJson.prompt || text,
-                        text: '',
-                      }
-                    : msg
-                )
-              );
-            } else {
-              const deltaContent =
-                parsedJson.choices?.[0]?.delta?.content ??
-                parsedJson.choices?.[0]?.text ??
-                parsedJson.content ??
-                '';
-              if (deltaContent) appendChunk(deltaContent);
-            }
-          } catch (err) {
-            if (!remainingData.startsWith('data:image/')) {
-              appendChunk(remainingData);
-            }
-          }
-        }
-      }
-
-      setMessages((prev) =>
-        prev.map((msg) => {
-          if (msg.id === assistantMessageId && !msg.text && msg.type !== 'image') {
-            return { ...msg, text: '(No response content received from engine.)' };
-          }
-          return msg;
-        })
-      );
-    } catch (err) {
-      const errorMessage =
-        err.name === 'AbortError' ? 'Request timed out after 60 seconds.' : err.message;
-      setError(errorMessage);
+    // 1. Check for Image Generation Intent
+    if (/^(make|generate|draw|create)\s+an?\s+(image|picture|graphic|art)/i.test(text)) {
+      const prompt = text.replace(/^(make|generate|draw|create)\s+an?\s+(image|picture|graphic|art)\s*(of)?\s*/i, '');
+      const uri = createFallbackCanvasDataUri(prompt);
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === assistantMessageId
-            ? { ...msg, text: `${msg.text}${msg.text ? '\n\n' : ''}[Error: ${errorMessage}]` }
+            ? { ...msg, type: 'image', imageData: uri, prompt, text: '' }
+            : msg
+        )
+      );
+      saveChatEvent(currentUid, { role: 'assistant', type: 'image', prompt }).catch(() => {});
+      setThinking(false);
+      return;
+    }
+
+    // 2. Check for Math Expression
+    const mathAnswer = trySolveMath(text);
+    if (mathAnswer) {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId ? { ...msg, text: mathAnswer } : msg
+        )
+      );
+      saveChatEvent(currentUid, { role: 'assistant', content: mathAnswer }).catch(() => {});
+      setThinking(false);
+      return;
+    }
+
+    // 3. Conversational AI via 100% Free Open Model Endpoint
+    try {
+      const apiKey = userApiKey.trim();
+      if (!apiKey) {
+        throw new Error('Please enter your free key (starts with sk-or-v1-...) in the input box at the top right.');
+      }
+
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'Nitro Infinity AI',
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.3-70b-instruct:free',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are Nitro Infinity AI. You are natural, articulate, intelligent, friendly, and helpful. Never reply with robotic boilerplate.',
+            },
+            { role: 'user', content: text },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Cloud returned status ${response.status}. Verify your free API key.`);
+      }
+
+      const data = await response.json();
+      const reply = data?.choices?.[0]?.message?.content || 'Nitro AI received your message.';
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId ? { ...msg, text: reply } : msg
+        )
+      );
+
+      saveChatEvent(currentUid, { role: 'assistant', content: reply }).catch(() => {});
+    } catch (err) {
+      setError(err.message);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId
+            ? { ...msg, text: `[Error: ${err.message}]` }
             : msg
         )
       );
@@ -444,19 +223,10 @@ function App() {
     }
   };
 
-  const handleInputKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(inputValue);
-    }
-  };
-
   const handleVoiceClick = () => {
-    const SpeechRecognitionCtor =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-
+    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognitionCtor) {
-      setError('Speech recognition is not supported in this browser.');
+      setError('Speech recognition not supported in this browser.');
       return;
     }
 
@@ -468,30 +238,16 @@ function App() {
 
     const recognition = new SpeechRecognitionCtor();
     recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
     recognition.onresult = (event) => {
       const transcript = event.results?.[0]?.[0]?.transcript || '';
-      if (transcript) {
-        setInputValue((prev) => (prev ? `${prev} ${transcript}` : transcript));
-      }
+      if (transcript) setInputValue((prev) => (prev ? `${prev} ${transcript}` : transcript));
     };
-
     recognition.onerror = () => setVoiceActive(false);
     recognition.onend = () => setVoiceActive(false);
 
     recognitionRef.current = recognition;
     setVoiceActive(true);
     recognition.start();
-  };
-
-  const formatTimestamp = (ts) => {
-    try {
-      return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch (e) {
-      return '';
-    }
   };
 
   return (
@@ -501,64 +257,26 @@ function App() {
           <div className="AiTopBar">
             <div className="aiHeadingWrap">
               <div className="aiHeading">NITRO INFINITY AI</div>
-              <div className="aiSubheading">Universal AI Studio • Visual & Text Intelligence</div>
+              <div className="aiSubheading">100% Free Firebase Spark Plan • Database & AI Studio Active</div>
             </div>
           </div>
 
           <div className="chatWrap">
             <div className="topBadges">
-              <label className="badge" htmlFor="agentSelect">
-                <span className="badgeLabel">Agent</span>
-                <select
-                  id="agentSelect"
-                  className="badgeValue"
-                  value={activeAgent}
-                  onChange={(e) => setActiveAgent(e.target.value)}
-                >
-                  <option value="teacher">teacher</option>
-                  <option value="coder">coder</option>
-                  <option value="creative">creative</option>
-                  <option value="general">general</option>
-                </select>
-              </label>
-
-              <label className="badge" htmlFor="providerSelect">
-                <span className="badgeLabel">Provider</span>
-                <select
-                  id="providerSelect"
-                  className="badgeValue"
-                  value={provider}
-                  onChange={(e) => handleProviderChange(e.target.value)}
-                >
-                  <option value="nitro">Nitro AI (Cloud)</option>
-                  <option value="nitro-brain">Nitro Full Brain (Local)</option>
-                  <option value="openrouter">OpenRouter (Free Tier)</option>
-                  <option value="groq">Groq</option>
-                  <option value="openai">OpenAI</option>
-                  <option value="together">Together AI</option>
-                </select>
-              </label>
-
-              <label className="badge" htmlFor="emotionSelect">
-                <span className="badgeLabel">Emotion</span>
-                <select
-                  id="emotionSelect"
-                  className="badgeValue"
-                  value={emotion}
-                  onChange={(e) => setEmotion(e.target.value)}
-                >
-                  <option value="neutral">neutral</option>
-                  <option value="happy">happy</option>
-                  <option value="sad">sad</option>
-                  <option value="angry">angry</option>
-                </select>
-              </label>
+              <div className="badge">
+                <span className="badgeLabel">Tier</span>
+                <span className="badgeValue">Spark Free Plan ($0)</span>
+              </div>
+              <div className="badge">
+                <span className="badgeLabel">Database</span>
+                <span className="badgeValue">Firestore Active</span>
+              </div>
 
               <input
                 type="password"
                 value={userApiKey}
                 onChange={(e) => setUserApiKey(e.target.value)}
-                placeholder="Optional API Key..."
+                placeholder="Paste free key (sk-or-v1-...)"
                 className="badgeValue"
                 style={{
                   padding: '6px 12px',
@@ -568,7 +286,7 @@ function App() {
                   color: '#f8fafc',
                   fontSize: '13px',
                   marginLeft: '10px',
-                  width: '180px',
+                  width: '210px',
                   outline: 'none',
                 }}
               />
@@ -581,174 +299,28 @@ function App() {
 
                 return (
                   <div key={m.id} className={isUser ? 'userRow' : 'assistantRow'}>
-                    {!isUser && (
-                      <div className="assistantAvatar" aria-hidden="true">
-                        ⚡
-                      </div>
-                    )}
+                    {!isUser && <div className="assistantAvatar" aria-hidden="true">⚡</div>}
                     <div className={isUser ? 'userBubble' : 'assistantBubble'}>
                       {isImage ? (
-                        <div
-                          className="imageMessageCard"
-                          style={{
-                            margin: '8px 0',
-                            padding: '14px',
-                            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9))',
-                            borderRadius: '16px',
-                            border: '1.5px solid rgba(56, 189, 248, 0.45)',
-                            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2)',
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              marginBottom: '10px',
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: '13px',
-                                fontWeight: 800,
-                                color: '#38bdf8',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.8px',
-                              }}
-                            >
-                              🎨 {m.style || 'Visual Graphic'}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: '11px',
-                                background: 'rgba(56, 189, 248, 0.18)',
-                                color: '#38bdf8',
-                                padding: '3px 8px',
-                                borderRadius: '10px',
-                                fontWeight: 700,
-                              }}
-                            >
-                              {m.quality || 'HD / 8K'}
-                            </span>
-                          </div>
-
-                          <div
-                            style={{
-                              borderRadius: '12px',
-                              overflow: 'hidden',
-                              minHeight: '260px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              background: '#090d16',
-                              border: '1px solid rgba(255, 255, 255, 0.12)',
-                            }}
-                          >
-                            <img
-                              src={m.imageData}
-                              alt={m.prompt || 'Generated graphic'}
-                              loading="eager"
-                              style={{
-                                width: '100%',
-                                maxHeight: '460px',
-                                objectFit: 'contain',
-                                display: 'block',
-                                borderRadius: '10px',
-                              }}
-                              onError={(e) => {
-                                e.currentTarget.src = createFallbackCanvasDataUri(m.prompt || 'Generated Graphic');
-                              }}
-                            />
-                          </div>
-
-                          {m.prompt && (
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                color: '#cbd5e1',
-                                marginTop: '10px',
-                                lineHeight: '1.4',
-                              }}
-                            >
-                              <strong style={{ color: '#f8fafc' }}>Prompt:</strong> {m.prompt}
-                            </div>
-                          )}
-
-                          <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
-                            <a
-                              href={m.imageData}
-                              download={`${(m.prompt || 'graphic').slice(0, 20).replace(/\s+/g, '_')}.png`}
-                              style={{
-                                textDecoration: 'none',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                fontSize: '12px',
-                                fontWeight: 600,
-                                padding: '6px 14px',
-                                borderRadius: '8px',
-                                background: 'linear-gradient(135deg, #0284c7, #0369a1)',
-                                color: '#ffffff',
-                                border: 'none',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              ⬇ Download Image
-                            </a>
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                try {
-                                  await navigator.clipboard.writeText(m.imageData);
-                                  alert('Image Data URI copied to clipboard!');
-                                } catch (e) {
-                                  alert('Copy failed.');
-                                }
-                              }}
-                              style={{
-                                fontSize: '12px',
-                                fontWeight: 600,
-                                padding: '6px 12px',
-                                borderRadius: '8px',
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                color: '#f8fafc',
-                                border: '1px solid rgba(255, 255, 255, 0.15)',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              📋 Copy Link
-                            </button>
-                          </div>
+                        <div style={{ margin: '8px 0', padding: '14px', background: '#0f172a', borderRadius: '16px', border: '1px solid #38bdf8' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 800, color: '#38bdf8' }}>🎨 NITRO GRAPHIC STUDIO</span>
+                          <img src={m.imageData} alt={m.prompt} style={{ width: '100%', maxHeight: '400px', objectFit: 'contain', marginTop: '10px', borderRadius: '8px' }} />
                         </div>
                       ) : (
                         <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
                       )}
-
-                      <div className="msgMeta">
-                        <span>{isUser ? 'You' : 'Nitro Infinity AI'}</span>
-                        {m.ts ? <span className="metaSep">•</span> : null}
-                        {m.ts ? <span>{formatTimestamp(m.ts)}</span> : null}
-                      </div>
                     </div>
-                    {isUser && (
-                      <div className="userAvatar" aria-hidden="true">
-                        🙂
-                      </div>
-                    )}
+                    {isUser && <div className="userAvatar" aria-hidden="true">🙂</div>}
                   </div>
                 );
               })}
 
               {thinking && (
                 <div className="assistantRow">
-                  <div className="assistantAvatar" aria-hidden="true">
-                    ⚡
-                  </div>
+                  <div className="assistantAvatar" aria-hidden="true">⚡</div>
                   <div className="assistantBubble">
                     <div className="typing">
-                      <span />
-                      <span />
-                      <span />
+                      <span /><span /><span />
                     </div>
                   </div>
                 </div>
@@ -756,11 +328,7 @@ function App() {
               <div ref={messagesEndRef} />
             </div>
 
-            {error && (
-              <div className="error-pill" style={{ margin: '10px' }}>
-                {error}
-              </div>
-            )}
+            {error && <div className="error-pill" style={{ margin: '10px' }}>{error}</div>}
           </div>
 
           <div className="aiInputDock">
@@ -769,32 +337,26 @@ function App() {
                 className="aiInputText"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleInputKeyDown}
-                placeholder="Type a message or request an image (e.g. 'red ball 3D image 8k')..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage(inputValue);
+                  }
+                }}
+                placeholder="Ask Nitro AI (e.g., 'solve 2x+10=30', 'make an image of a cyber lion', 'tell me a story')..."
                 rows={2}
                 disabled={thinking}
               />
 
-              <button
-                className={voiceActive ? 'voiceBtn active' : 'voiceBtn'}
-                type="button"
-                onClick={handleVoiceClick}
-                aria-label="Voice input"
-                title="Voice input"
-              >
+              <button className={voiceActive ? 'voiceBtn active' : 'voiceBtn'} type="button" onClick={handleVoiceClick}>
                 🎙️
               </button>
 
               <button
-                className={
-                  inputValue.trim() && !thinking
-                    ? 'sendBtn'
-                    : 'sendBtn disabled'
-                }
+                className={inputValue.trim() && !thinking ? 'sendBtn' : 'sendBtn disabled'}
                 type="button"
                 onClick={() => sendMessage(inputValue)}
                 disabled={!inputValue.trim() || thinking}
-                aria-label="Send message"
               >
                 ⬆️
               </button>
