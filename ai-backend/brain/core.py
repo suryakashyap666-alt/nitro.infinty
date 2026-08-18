@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import urllib.request
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, List, Optional
 from urllib.parse import quote_plus
@@ -38,6 +39,27 @@ except (ImportError, ValueError):
     def safety_block(prompt: str): return None
 
 
+class AIRouter:
+    """Internal task routing orchestrator for Nitro AI."""
+
+    def __init__(self, brain: Any) -> None:
+        self.brain = brain
+
+    def route(self, user_id: str, message: str, bot_id: str | None = None) -> Optional[Dict[str, Any]]:
+        return None
+
+
+class TaskAgent:
+    """Background asynchronous task agent for Nitro AI."""
+
+    def __init__(self, brain: Any) -> None:
+        self.brain = brain
+
+    def submit_task(self, task_type: str, user_id: str, payload: Dict[str, Any] | None = None) -> str:
+        tid = str(uuid.uuid4())
+        return tid
+
+
 class CoreBrain:
     """Native Intelligence & Conversational Core for Nitro Infinity AI."""
 
@@ -59,7 +81,66 @@ class CoreBrain:
         self.context = ContextEngine(storage_path=storage_path)
         self.education = EducationSubjectsEngine()
 
+        self.router = AIRouter(self)
+        self.task_agent = TaskAgent(self)
+
         self._executor = ThreadPoolExecutor(max_workers=4)
+
+    def _query_free_cloud_model(
+        self,
+        messages: List[Dict[str, str]],
+        system_prompt: Optional[str] = None,
+    ) -> Optional[str]:
+        """Queries free cloud serverless open models using your repository secrets.
+        Zero laptop CPU load, zero cost.
+        """
+        api_key = (
+            os.environ.get("NITRO_CLOUD_API_KEY")
+            or os.environ.get("OPENROUTER_API_KEY")
+            or os.environ.get("NITRO_SYSTEM_API_KEY")
+        )
+        if not api_key:
+            return None
+
+        base_url = os.environ.get("NITRO_API_BASE", "https://openrouter.ai/api/v1").rstrip("/")
+        model_name = os.environ.get("NITRO_FREE_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
+
+        url = f"{base_url}/chat/completions"
+
+        conversation_payload = []
+        if system_prompt:
+            conversation_payload.append({"role": "system", "content": system_prompt})
+        conversation_payload.extend(messages)
+
+        payload = {
+            "model": model_name,
+            "messages": conversation_payload,
+            "stream": False,
+        }
+
+        try:
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "https://nitro-ai.local",
+                    "X-Title": "Nitro Infinity AI",
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=15) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                choices = res_data.get("choices", [])
+                if choices:
+                    content = choices[0].get("message", {}).get("content", "").strip()
+                    if content:
+                        return content
+        except Exception:
+            pass
+
+        return None
 
     def handle_message(
         self,
@@ -140,15 +221,27 @@ class CoreBrain:
                 self.memory.append_message(user_id, clean_text, reply, emotion=user_emotion, topic="web_search")
             return {"reply": reply, "emotion": user_emotion, "topic": "web_search"}
 
-        # 8. Conversational Mind (Direct, Intelligent, Natural Human Speech)
-        natural_reply = self._generate_conversational_reply(clean_text, user_id=user_id, emotion=user_emotion)
+        # 8. Conversational Mind (Cloud Free Model + Native Fallback)
+        history_msgs = conversation_context or [{"role": "user", "content": clean_text}]
+        system_instructions = (
+            "You are Nitro Infinity AI. You are natural, articulate, intelligent, friendly, and direct. "
+            "Never reply with robotic boilerplate, bracket tags, or canned templates. "
+            "Provide helpful, concise, human-like answers."
+        )
+
+        cloud_reply = self._query_free_cloud_model(messages=history_msgs, system_prompt=system_instructions)
+
+        if cloud_reply:
+            final_reply = cloud_reply
+        else:
+            final_reply = self._generate_conversational_reply(clean_text, user_id=user_id, emotion=user_emotion)
 
         final_composed = self.composer.compose(
             user_id=user_id,
             emotion=user_emotion,
             topic="general",
             risk_result=risk_result,
-            base_reply=natural_reply,
+            base_reply=final_reply,
             learning_update=None,
             chat_mode={"strict": False},
         )

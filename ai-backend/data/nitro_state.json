@@ -269,6 +269,119 @@
         "emotion": "neutral",
         "last_signal": ""
       }
+    },
+    "api_client": {
+      "emotion": {
+        "emotion": "neutral",
+        "last_signal": ""
+      },
+      "chat_history": [
+        {
+          "message": "Hey Nitro! Tell me a cool science fact.",
+          "reply": "Hey! I'm here and ready. What are we working on today?",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-08-18T15:10:57.693568+00:00"
+        },
+        {
+          "message": "solve 4x + 20 = 60",
+          "reply": "**Problem:** Solve for `x` in `4x + 20 = 60`\n\n**Step-by-step Solution:**\n1. Given linear equation: `4x + 20 = 60`\n2. Group variable terms with `x` on one side and constants on the other.\n3. Subtract constant `20` from both sides: `4x = 40`\n4. Divide both sides by `4`: `x = 10`\n\n**Final Answer:** `x = 10`",
+          "emotion": "neutral",
+          "topic": "math",
+          "ts": "2026-08-18T15:12:32.697393+00:00"
+        },
+        {
+          "message": "make an image of a cybernetic dragon in space 4k",
+          "reply": "Generated image: a cybernetic dragon in space 4k",
+          "emotion": "happy",
+          "topic": "image",
+          "ts": "2026-08-18T15:13:05.663212+00:00"
+        },
+        {
+          "message": "#code write a python script to download a webpage",
+          "reply": "Generated code: Safe parsing utility\n\n```\nimport re\n\ndef extract_integers(text: str):\n    # Safe parsing: only digits and optional leading minus signs.\n    return [int(x) for x in re.findall(r'-?\\d+', text)]\n\ndef compute_mean(numbers):\n    if not numbers:\n        raise ValueError('No numbers provided')\n    return sum(numbers) / len(numbers)\n\nif __name__ == '__main__':\n    nums = extract_integers('Scores: 10, -2, 7')\n    print(compute_mean(nums))\n\n```\n\nStep-by-step (what this code does):\n1) Defines inputs/outputs clearly.\n2) Validates or constrains data to avoid unsafe execution.\n3) Keeps logic in small, testable pieces.\n4) Handles errors predictably.",
+          "emotion": "neutral",
+          "topic": "coding",
+          "ts": "2026-08-18T15:13:29.200205+00:00"
+        },
+        {
+          "message": "#code write a python script to download a webpage",
+          "reply": "Generated code: Safe parsing utility\n\n```\nimport re\n\ndef extract_integers(text: str):\n    # Safe parsing: only digits and optional leading minus signs.\n    return [int(x) for x in re.findall(r'-?\\d+', text)]\n\ndef compute_mean(numbers):\n    if not numbers:\n        raise ValueError('No numbers provided')\n    return sum(numbers) / len(numbers)\n\nif __name__ == '__main__':\n    nums = extract_integers('Scores: 10, -2, 7')\n    print(compute_mean(nums))\n\n```\n\nStep-by-step (what this code does):\n1) Defines inputs/outputs clearly.\n2) Validates or constrains data to avoid unsafe execution.\n3) Keeps logic in small, testable pieces.\n4) Handles errors predictably.",
+          "emotion": "neutral",
+          "topic": "coding",
+          "ts": "2026-08-18T15:13:32.796605+00:00"
+        },
+        {
+          "message": "make an image of a cybernetic dragon in space 4k",
+          "reply": "Generated image: a cybernetic dragon in space 4k",
+          "emotion": "happy",
+          "topic": "image",
+          "ts": "2026-08-18T15:14:42.511672+00:00"
+        },
+        {
+          "message": "make an image of a cybernetic dragon in space 4k",
+          "reply": "Generated image: a cybernetic dragon in space 4k",
+          "emotion": "happy",
+          "topic": "image",
+          "ts": "2026-08-18T15:29:31.166724+00:00"
+        },
+        {
+          "message": "make an image of a cybernetic dragon in space 4k",
+          "reply": "Generated image: a cybernetic dragon in space 4k",
+          "emotion": "happy",
+          "topic": "image",
+          "ts": "2026-08-18T15:30:13.981769+00:00"
+        },
+        {
+          "message": "make an image of a cybernetic dragon in space 4k",
+          "reply": "Generated image: a cybernetic dragon in space 4k",
+          "emotion": "happy",
+          "topic": "image",
+          "ts": "2026-08-18T15:37:51.884225+00:00"
+        },
+        {
+          "message": "tell me about you who made you?",
+          "reply": "You brought up an interesting point about **tell me about you who made you?**.\n\nWe can dive deeper into the mechanics, work out a practical example, or explore how this connects to related topics. What angle do you want to start with?",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-08-18T15:44:05.237528+00:00"
+        },
+        {
+          "message": "tell me about you ,who made you? direct answer you know yes or no and nothing",
+          "reply": "You brought up an interesting point about **tell me about you ,who made you? direct answer you know yes or no and nothing**.\n\nWe can dive deeper into the mechanics, work out a practical example, or explore how this connects to related topics. What angle do you want to start with?",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-08-18T15:44:50.188120+00:00"
+        },
+        {
+          "message": "tell me about you, who made you?",
+          "reply": "You brought up an interesting point about **tell me about you, who made you?**.\n\nWe can dive deeper into the mechanics, work out a practical example, or explore how this connects to related topics. What angle do you want to start with?",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-08-18T15:48:02.429119+00:00"
+        },
+        {
+          "message": "tell me about you, who made you?",
+          "reply": "You brought up an interesting point about **tell me about you, who made you?**.\n\nWe can dive deeper into the mechanics, work out a practical example, or explore how this connects to related topics. What angle do you want to start with?",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-08-18T15:49:09.129528+00:00"
+        },
+        {
+          "message": "tell me about you, who made you?",
+          "reply": "You brought up an interesting point about **tell me about you, who made you?**.\n\nWe can dive deeper into the mechanics, work out a practical example, or explore how this connects to related topics. What angle do you want to start with?",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-08-18T15:49:10.136707+00:00"
+        },
+        {
+          "message": "tell me about you, who made you?",
+          "reply": "You brought up an interesting point about **tell me about you, who made you?**.\n\nWe can dive deeper into the mechanics, work out a practical example, or explore how this connects to related topics. What angle do you want to start with?",
+          "emotion": "neutral",
+          "topic": "general",
+          "ts": "2026-08-18T15:49:10.745955+00:00"
+        }
+      ]
     }
   },
   "web_cache": {
@@ -365,6 +478,124 @@
           "trusted": false
         }
       ]
+    }
+  },
+  "bots": {
+    "math_tutor": {
+      "name": "Math Tutor",
+      "description": "Step-by-step math and calculus problem solving with educational coaching.",
+      "skills": [
+        "algebra",
+        "calculus",
+        "step-by-step solving",
+        "practice question generation",
+        "weak topic improvement"
+      ],
+      "ratings": 4.9,
+      "creator": "Nitro Infinity AI",
+      "category": "math tutor",
+      "icon": "🧮",
+      "useGlobalLanguageSystem": true,
+      "selectedLanguages": [],
+      "preferredLanguage": null,
+      "voicePreferences": {},
+      "supportedLanguages": [
+        "en",
+        "hi",
+        "ja",
+        "ar",
+        "es",
+        "fr",
+        "zh",
+        "ru",
+        "bn",
+        "ta",
+        "ur",
+        "de",
+        "pt",
+        "ko",
+        "vi",
+        "th",
+        "id",
+        "tr",
+        "it",
+        "te",
+        "mr",
+        "ms",
+        "fa"
+      ],
+      "voiceSupport": true,
+      "autoDetectLanguage": true,
+      "educationEnabled": true,
+      "webSearchEnabled": false,
+      "allowedWebCategories": [],
+      "trustedSources": [],
+      "imageGenerationEnabled": true,
+      "imageDetectionEnabled": true,
+      "professionEnabled": false,
+      "professionCategories": [],
+      "workflowAssistanceEnabled": false,
+      "contextUnderstandingEnabled": false,
+      "userHistoryUnderstandingEnabled": false,
+      "webAssistanceEnabled": false
+    },
+    "code_architect": {
+      "name": "Code Architect",
+      "description": "Python, React, and FastAPI coding assistant with debugging and code generation.",
+      "skills": [
+        "python",
+        "fastapi",
+        "react",
+        "debugging",
+        "code generation"
+      ],
+      "ratings": 4.8,
+      "creator": "Nitro Infinity AI",
+      "category": "coding",
+      "icon": "💻",
+      "useGlobalLanguageSystem": true,
+      "selectedLanguages": [],
+      "preferredLanguage": null,
+      "voicePreferences": {},
+      "supportedLanguages": [
+        "en",
+        "hi",
+        "ja",
+        "ar",
+        "es",
+        "fr",
+        "zh",
+        "ru",
+        "bn",
+        "ta",
+        "ur",
+        "de",
+        "pt",
+        "ko",
+        "vi",
+        "th",
+        "id",
+        "tr",
+        "it",
+        "te",
+        "mr",
+        "ms",
+        "fa"
+      ],
+      "voiceSupport": true,
+      "autoDetectLanguage": true,
+      "educationEnabled": false,
+      "webSearchEnabled": false,
+      "allowedWebCategories": [],
+      "trustedSources": [],
+      "imageGenerationEnabled": true,
+      "imageDetectionEnabled": true,
+      "professionEnabled": false,
+      "professionCategories": [],
+      "workflowAssistanceEnabled": true,
+      "contextUnderstandingEnabled": false,
+      "userHistoryUnderstandingEnabled": false,
+      "webAssistanceEnabled": false
     }
   }
 }

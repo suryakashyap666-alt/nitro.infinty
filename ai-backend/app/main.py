@@ -2,7 +2,7 @@
 ai-backend/app/main.py
 
 Unified FastAPI Application for Nitro Infinity AI Engine & API.
-Mounts API v1 routes, Bot Marketplace, Multimodal Studio, and CoreBrain.
+Supports /api/v1/* routes, root status endpoint, and legacy route aliases.
 """
 from __future__ import annotations
 
@@ -14,16 +14,16 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from brain.core import CoreBrain
 from legacy.bots_engine import BotMarketplaceEngine
 from legacy.image.image_api import router as image_router
 from legacy.puzzle.puzzle_images_api import router as puzzle_router
 
-from app.api.routes import router as chat_v1_router
+from app.api.routes import router as chat_v1_router, ChatRequestPayload, chat as chat_endpoint_handler
 from app.api.health import router as health_v1_router
 from app.api.models import router as models_v1_router
 from app.api.providers import router as providers_v1_router
@@ -41,6 +41,8 @@ app = FastAPI(
     title="Nitro Infinity AI — Engine & API",
     version="1.0.0",
     description="Native, self-contained AI engine powering Nitro AI.",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 ALLOWED_ORIGINS = [
@@ -69,11 +71,29 @@ app.include_router(health_v1_router)
 app.include_router(models_v1_router)
 app.include_router(providers_v1_router)
 
-# Mount Studio & Puzzle Routers
+# Mount Studio Routers
 app.include_router(image_router)
 app.include_router(puzzle_router)
 
 
+# Root Overview Route
+@app.get("/")
+def root() -> dict:
+    return {
+        "service": "Nitro Infinity AI Engine",
+        "status": "online",
+        "version": "1.0.0",
+        "endpoints": {
+            "chat": "POST /api/v1/chat",
+            "health": "GET /api/v1/health",
+            "bots": "GET /api/v1/bots",
+            "models": "GET /api/v1/models",
+            "interactive_docs": "GET /docs"
+        },
+    }
+
+
+# Health Check
 @app.get("/health")
 def health() -> dict:
     return {
@@ -84,8 +104,21 @@ def health() -> dict:
     }
 
 
+# Bots Listing
+@app.get("/bots")
 @app.get("/api/v1/bots")
-def list_bots_v1(query: str = "") -> dict:
+def list_bots(query: str = "") -> dict:
     bots_list = BOT_MARKET.list_bots()
     from legacy.bots_engine import filter_bots
     return {"ok": True, "bots": filter_bots(bots_list, query)}
+
+
+# Alias for legacy /chat & /api/chat requests
+@app.post("/chat")
+@app.post("/api/chat")
+async def chat_alias(
+    payload: ChatRequestPayload,
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
+    authorization: str | None = Header(None),
+):
+    return await chat_endpoint_handler(payload, x_api_key, authorization)
