@@ -1,7 +1,7 @@
 """
 ai-backend/app/api/models.py
 
-GET /api/v1/models — Returns native Nitro AI model capabilities.
+GET /api/v1/models — Returns native Nitro AI model catalog.
 """
 from __future__ import annotations
 
@@ -15,11 +15,20 @@ NITRO_MODELS: List[Dict[str, Any]] = [
         "modelId": "nitro-v1",
         "displayName": "Nitro Infinity AI Core (Unified)",
         "isDefault": True,
-        "capabilities": ["chat", "math", "coding", "image_generation", "education", "reasoning"],
+        "capabilities": [
+            "core_reasoning",
+            "math_solving",
+            "code_architecture",
+            "image_generation",
+            "curriculum_education",
+            "exam_generation",
+            "profession_workflows",
+            "voice_synthesis",
+        ],
     },
     {
         "modelId": "nitro-brain-v1",
-        "displayName": "Nitro Local Brain (Offline / Fast)",
+        "displayName": "Nitro Local Brain (Fast / Offline)",
         "isDefault": False,
         "capabilities": ["chat", "math", "coding", "learning_graph", "heuristics"],
     },

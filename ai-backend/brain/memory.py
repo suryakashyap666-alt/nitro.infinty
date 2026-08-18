@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-# Firebase Firestore and Realtime Database optional imports
 try:
     import firebase_admin
     from firebase_admin import firestore, db as rtdb
@@ -29,9 +28,8 @@ class ChatMemoryEvent:
 
 
 class MemoryEngine:
-    """Persists chat history, mistakes, weak topics, and bot configurations per user.
-    Synchronizes automatically with Firebase Firestore / Realtime DB when configured,
-    with robust local JSON fallback.
+    """Persists chat history, mistakes, weak topics, and bot configurations.
+    Synchronizes automatically with Firebase Firestore & Realtime DB when configured.
     """
 
     def __init__(self, storage_path: str) -> None:

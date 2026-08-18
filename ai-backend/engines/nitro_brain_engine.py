@@ -1,7 +1,7 @@
 """
 ai-backend/engines/nitro_brain_engine.py
 
-Native CoreBrain engine connector.
+Asynchronous CoreBrain engine connector.
 """
 from __future__ import annotations
 

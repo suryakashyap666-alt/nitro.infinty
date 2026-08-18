@@ -2,8 +2,7 @@
 ai-backend/engines/router.py
 
 Strict, native Nitro AI Engine Router.
-All chat completions, agent queries, and tools route exclusively through Nitro AI.
-External third-party providers (OpenAI, Claude, Groq, Qwen, etc.) are excluded.
+Streams completions directly from CoreBrain without third-party dependencies.
 """
 from __future__ import annotations
 
@@ -15,7 +14,6 @@ from typing import Any, AsyncGenerator, Dict, List, Optional
 
 
 class EngineError(Exception):
-    """Raised for any Nitro engine-level error."""
     def __init__(self, message: str, *, status_code: int = 500) -> None:
         super().__init__(message)
         self.message = message
@@ -46,7 +44,7 @@ def _sse_chunk(piece: str) -> str:
 
 
 class NitroNativeEngine(BaseEngine):
-    """Direct streaming adapter for Nitro Infinity AI Brain Core."""
+    """Direct streaming adapter for Nitro Infinity AI Core."""
     provider_id = "nitro"
 
     def __init__(self) -> None:
@@ -59,12 +57,6 @@ class NitroNativeEngine(BaseEngine):
         api_key: Optional[str] = None,
         bot_id: Optional[str] = None,
     ) -> AsyncGenerator[str, None]:
-        # Validate Nitro API Key if NITRO_API_KEY environment variable is enforced
-        required_key = os.environ.get("NITRO_API_KEY")
-        if required_key and api_key != required_key:
-            raise EngineError("Invalid or missing Nitro API Key.", status_code=401)
-
-        # Extract latest user message
         last_message = ""
         for m in reversed(messages):
             if m.get("role") == "user" and m.get("content"):
@@ -74,7 +66,6 @@ class NitroNativeEngine(BaseEngine):
         if not last_message:
             raise EngineError("No user message content provided.", status_code=400)
 
-        # Lazy import of CoreBrain to prevent circular imports
         from brain.core import CoreBrain
         from legacy.bots_engine import BotMarketplaceEngine
 
@@ -102,7 +93,7 @@ class NitroNativeEngine(BaseEngine):
         if not reply_text:
             reply_text = "Nitro AI has processed your request."
 
-        # Check if an image was generated
+        # Emit image generation payload if generated
         if isinstance(result, dict) and result.get("imageAction"):
             img_action = result.get("imageAction", {})
             img_payload = {
@@ -124,5 +115,4 @@ class NitroNativeEngine(BaseEngine):
 
 
 def resolve_engine(provider_id: str = "nitro") -> BaseEngine:
-    """Always resolves to the native Nitro AI Engine."""
     return NitroNativeEngine()

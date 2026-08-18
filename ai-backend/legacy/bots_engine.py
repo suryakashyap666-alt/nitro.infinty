@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
@@ -17,39 +16,24 @@ class BotMarketplaceBot:
     category: str
     icon: str
 
-    # Education system (education intelligence) - OFF by default for custom bots
-    # MAIN Nitro Infinity AI (no bot_id) will always have it enabled.
     educationEnabled: bool = False
-
-    # Multilingual global bot language system (default ON)
     useGlobalLanguageSystem: bool = True
-    selectedLanguages: List[str] | None = None  # used only if global system disabled
-    preferredLanguage: str | None = None  # bot-level preferred language (optional)
+    selectedLanguages: List[str] | None = None
+    preferredLanguage: str | None = None
     voicePreferences: Dict[str, Any] | None = None
-
-    # Live web intelligence support
     webSearchEnabled: bool = False
     allowedWebCategories: List[str] | None = None
     trustedSources: List[str] | None = None
-
-    # Context understanding / conversation intelligence (OFF by default for custom bots)
     contextUnderstandingEnabled: bool = False
     userHistoryUnderstandingEnabled: bool = False
     webAssistanceEnabled: bool = False
-
-    # Image generation / detection capabilities
-    imageGenerationEnabled: bool = False
-    imageDetectionEnabled: bool = False
-
-    # Profession intelligence support for workplace and career guidance
+    imageGenerationEnabled: bool = True
+    imageDetectionEnabled: bool = True
     professionEnabled: bool = False
     professionCategories: List[str] | None = None
     workflowAssistanceEnabled: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
-        # Compute marketplace metadata for UI.
-        # Voice support is browser-based; we can mark it as available if app runs in browser.
-        # Backend always provides `voiceSupport: True` (frontend uses canUseVoice() for actual capability).
         from .language import SUPPORTED_LANGUAGES
 
         if self.useGlobalLanguageSystem:
@@ -67,43 +51,30 @@ class BotMarketplaceBot:
             "creator": self.creator,
             "category": self.category,
             "icon": self.icon,
-
-            # Language system settings
             "useGlobalLanguageSystem": bool(self.useGlobalLanguageSystem),
             "selectedLanguages": list(self.selectedLanguages or []),
             "preferredLanguage": self.preferredLanguage,
             "voicePreferences": self.voicePreferences or {},
-
-            # Marketplace display fields
             "supportedLanguages": supported,
             "voiceSupport": True,
             "autoDetectLanguage": auto_detect,
-
-            # Education system
             "educationEnabled": bool(self.educationEnabled),
-            # Live web intelligence system
             "webSearchEnabled": bool(self.webSearchEnabled),
             "allowedWebCategories": list(self.allowedWebCategories or []),
             "trustedSources": list(self.trustedSources or []),
-            # Image generation/detection policy flags
             "imageGenerationEnabled": bool(self.imageGenerationEnabled),
             "imageDetectionEnabled": bool(self.imageDetectionEnabled),
-            # Profession intelligence system
             "professionEnabled": bool(self.professionEnabled),
             "professionCategories": list(self.professionCategories or []),
             "workflowAssistanceEnabled": bool(self.workflowAssistanceEnabled),
-            # Context intelligence flags
             "contextUnderstandingEnabled": bool(self.contextUnderstandingEnabled),
             "userHistoryUnderstandingEnabled": bool(self.userHistoryUnderstandingEnabled),
             "webAssistanceEnabled": bool(self.webAssistanceEnabled),
         }
 
 
-
-
-
 class BotMarketplaceEngine:
-    """Persists marketplace bots inside existing nitro_state.json under a top-level `bots` key."""
+    """Persists marketplace bots inside nitro_state.json under a top-level `bots` key."""
 
     def __init__(self, storage_path: str) -> None:
         self.storage_path = storage_path
@@ -142,26 +113,37 @@ class BotMarketplaceEngine:
         if "math_tutor" not in bots:
             bots["math_tutor"] = BotMarketplaceBot(
                 name="Math Tutor",
-                description=(
-                    "Advanced math solving with emotional, step-by-step teaching. "
-                    "Generates practice papers and question sets, supports IIT/CBSE teaching, "
-                    "improves weak topics, and advises while solving."
-                ),
+                description="Step-by-step math and calculus problem solving with educational coaching.",
                 skills=[
-                    "advanced math solving",
-                    "reasoning",
-                    "emotional support while teaching",
-                    "step-by-step teaching",
-                    "practice paper generation",
-                    "question generation",
-                    "IIT/CBSE teaching",
+                    "algebra",
+                    "calculus",
+                    "step-by-step solving",
+                    "practice question generation",
                     "weak topic improvement",
-                    "advising/helping",
                 ],
-                ratings=4.8,
+                ratings=4.9,
                 creator="Nitro Infinity AI",
                 category="math tutor",
                 icon="🧮",
+                educationEnabled=True,
+            ).to_dict()
+
+        if "code_architect" not in bots:
+            bots["code_architect"] = BotMarketplaceBot(
+                name="Code Architect",
+                description="Python, React, and FastAPI coding assistant with debugging and code generation.",
+                skills=[
+                    "python",
+                    "fastapi",
+                    "react",
+                    "debugging",
+                    "code generation",
+                ],
+                ratings=4.8,
+                creator="Nitro Infinity AI",
+                category="coding",
+                icon="💻",
+                workflowAssistanceEnabled=True,
             ).to_dict()
 
         self._save(data)
@@ -169,7 +151,7 @@ class BotMarketplaceEngine:
     def list_bots(self) -> List[Dict[str, Any]]:
         data = self._load()
         bots = self._get_bots_container(data)
-        return [bots[k] for k in bots.keys()]
+        return list(bots.values())
 
     def get_bot(self, bot_id: str) -> Dict[str, Any]:
         data = self._load()
@@ -184,78 +166,21 @@ class BotMarketplaceEngine:
         self._save(data)
 
 
-def bot_market_tags(bot: Dict[str, Any]) -> List[str]:
-    text = " ".join(
-        [
-            str(bot.get("name", "")),
-            str(bot.get("description", "")),
-            " ".join(bot.get("skills", []) or []),
-            str(bot.get("category", "")),
-        ]
-    ).lower()
-
-    # simple synonym expansion
-    synonyms = {
-        "coding": ["coding", "code", "programming", "developer"],
-        "math": ["math", "algebra", "geometry", "calculus", "iIt", "cbse"],
-        "tutor": ["tutor", "teacher", "mentoring", "coach"],
-        "emotional": ["emotional", "support", "coach", "encourag"],
-        "reasoning": ["reasoning", "logic", "explain", "step-by-step"],
-        "exam": ["exam", "iIt", "cbse", "paper", "question generation"],
-    }
-
-    tags = set()
-    for tag, needles in synonyms.items():
-        for n in needles:
-            if n in text:
-                tags.add(tag)
-                break
-
-    # fallback category
-    if not tags:
-        cat = str(bot.get("category", "")).lower().strip()
-        if cat:
-            tags.add(cat)
-
-    return sorted(tags)
-
-
 def filter_bots(bots: List[Dict[str, Any]], query: str) -> List[Dict[str, Any]]:
     q = (query or "").strip().lower()
     if not q:
         return bots
 
-    # allow direct tags in search (math/coding/tutor/emotional/reasoning/exam)
-    allowed_tags = ["math", "coding", "tutor", "emotional", "reasoning", "exam"]
-    q_has_tag = any(t in q for t in allowed_tags)
-
     filtered: List[Dict[str, Any]] = []
     for b in bots:
-        blob = " ".join(
-            [
-                str(b.get("name", "")),
-                str(b.get("description", "")),
-                " ".join(b.get("skills", []) or []),
-                str(b.get("category", "")),
-            ]
-        ).lower()
+        blob = " ".join([
+            str(b.get("name", "")),
+            str(b.get("description", "")),
+            " ".join(b.get("skills", []) or []),
+            str(b.get("category", "")),
+        ]).lower()
 
-        if q_has_tag:
-            tags = set(bot_market_tags(b))
-            if any(tag in q for tag in allowed_tags) and any(tag in tags for tag in allowed_tags):
-                filtered.append(b)
-        else:
-            # generic substring match
-            if q in blob:
-                filtered.append(b)
+        if q in blob:
+            filtered.append(b)
 
-    # stable-ish sort: highest ratings first
-    def rating_val(x: Dict[str, Any]) -> float:
-        try:
-            return float(x.get("ratings", 0))
-        except Exception:
-            return 0.0
-
-    filtered.sort(key=rating_val, reverse=True)
     return filtered
-

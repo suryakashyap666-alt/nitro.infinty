@@ -1,7 +1,7 @@
 """
 ai-backend/app/api/providers.py
 
-GET /api/v1/providers — Catalog of Nitro AI native engines and specialized bot roles.
+GET /api/v1/providers — Catalog of Nitro AI native system roles.
 """
 from __future__ import annotations
 
@@ -27,8 +27,8 @@ def get_providers() -> Dict[str, Any]:
         "provider": {
             "providerId": "nitro",
             "displayName": "Nitro Infinity AI",
-            "description": "Self-contained, provider-agnostic native AI engine with memory, bots, and multimodal capabilities.",
-            "isDefault": True,
+            "description": "Self-contained native AI engine with memory, bots, and multimodal capabilities.",
+            "isDefault": true,
             "roles": NITRO_SYSTEM_ROLES,
         }
     }

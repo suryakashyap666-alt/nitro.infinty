@@ -1,22 +1,14 @@
 from __future__ import annotations
 
 import base64
-import hashlib
 import json
 import logging
 import os
 import re
-import threading
-import time
 import urllib.request
-import uuid
-from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Optional, Tuple
-from urllib.error import HTTPError, URLError
-from urllib.parse import parse_qs, quote_plus, unquote, urlparse
+from typing import Any, Callable, Dict, List, Optional
+from urllib.parse import quote_plus
 
 from .coding_engine import CodingEngine
 from .context_engine import ContextEngine
@@ -84,15 +76,15 @@ class CoreBrain:
         if not clean_text:
             return {"reply": "Hey! How can I help you today?", "emotion": "neutral", "topic": "general"}
 
-        # Safety Check
+        # 1. Safety Guardrails Check
         risk_result = self.risk.analyze(clean_text, user_id=user_id)
         if risk_result.get("blocked"):
             return {"reply": risk_result.get("reply", "I cannot fulfill this request due to safety policies."), "emotion": "neutral", "topic": "safety"}
 
-        # Detect User Emotion
+        # 2. Detect User Emotion & Sentiment
         user_emotion = self.emotion.detect_and_update(user_id=user_id, message=clean_text)
 
-        # 1. Image Studio Intent
+        # 3. Image Studio Intent (Native CairoSVG / Pillow Vector Studio)
         img_intent = detect_image_intent(clean_text)
         if img_intent and img_intent.action == "generate":
             plan = plan_style_and_quality(img_intent.prompt)
@@ -115,7 +107,7 @@ class CoreBrain:
                 "imageAction": action,
             }
 
-        # 2. Math & Calculation Expression
+        # 4. Math & Calculus Solver (Native Step-by-Step Evaluator)
         if self.math.is_math_expression(clean_text):
             math_res = self.math.solve(clean_text, user_id=user_id, as_teaching=True)
             reply = math_res.get("reply", "")
@@ -123,7 +115,7 @@ class CoreBrain:
                 self.memory.append_message(user_id, clean_text, reply, emotion=user_emotion, topic="math")
             return {"reply": reply, "emotion": user_emotion, "topic": "math"}
 
-        # 3. Coding & Software Architecture
+        # 5. Coding & Software Architecture
         low = clean_text.lower()
         if clean_text.startswith("#code") or any(k in low for k in ["write code", "how to code", "debug this", "python script", "javascript function", "fastapi app", "react component"]):
             code_res = self.coding.generate_code(clean_text, user_id=user_id)
@@ -132,7 +124,7 @@ class CoreBrain:
                 self.memory.append_message(user_id, clean_text, reply, emotion=user_emotion, topic="coding")
             return {"reply": reply, "emotion": user_emotion, "topic": "coding"}
 
-        # 4. Creative Writing (Stories, Poems, Dialogues, Jokes)
+        # 6. Creative Writing (Stories, Poems, Riddles, Jokes)
         if any(k in low for k in ["tell me a joke", "write a poem", "make up a story", "tell a riddle", "write a dialogue"]):
             creative_res = self.creative.generate(user_id=user_id, message=clean_text)
             reply = creative_res.get("reply", "")
@@ -140,7 +132,7 @@ class CoreBrain:
                 self.memory.append_message(user_id, clean_text, reply, emotion=user_emotion, topic="creative")
             return {"reply": reply, "emotion": user_emotion, "topic": "creative"}
 
-        # 5. Live Web Research (Current events, lookups, queries)
+        # 7. Live Web Research (DuckDuckGo Realtime Scraper)
         if self._is_live_search_query(clean_text):
             search_res = self._handle_live_web_search(user_id=user_id, query=clean_text)
             reply = search_res.get("reply", "")
@@ -148,9 +140,10 @@ class CoreBrain:
                 self.memory.append_message(user_id, clean_text, reply, emotion=user_emotion, topic="web_search")
             return {"reply": reply, "emotion": user_emotion, "topic": "web_search"}
 
-        # 6. Natural Dynamic Conversation (Natural Dialogue Mind)
-        natural_reply = self._generate_conversational_reply(clean_text, user_id=user_id, emotion=user_emotion, context=conversation_context)
-        final_reply = self.composer.compose(
+        # 8. Conversational Mind (Direct, Intelligent, Natural Human Speech)
+        natural_reply = self._generate_conversational_reply(clean_text, user_id=user_id, emotion=user_emotion)
+
+        final_composed = self.composer.compose(
             user_id=user_id,
             emotion=user_emotion,
             topic="general",
@@ -161,9 +154,9 @@ class CoreBrain:
         )
 
         if persist_chat:
-            self.memory.append_message(user_id, clean_text, final_reply, emotion=user_emotion, topic="general")
+            self.memory.append_message(user_id, clean_text, final_composed, emotion=user_emotion, topic="general")
 
-        return {"reply": final_reply, "emotion": user_emotion, "topic": "general"}
+        return {"reply": final_composed, "emotion": user_emotion, "topic": "general"}
 
     def _is_live_search_query(self, text: str) -> bool:
         low = text.lower()
@@ -186,54 +179,29 @@ class CoreBrain:
         except Exception:
             pass
 
-        return {"reply": f"I attempted to look up '{clean_q}', but couldn't reach live web search results right now. I can still analyze what we know directly."}
+        return {"reply": f"I attempted to look up '{clean_q}', but couldn't reach live web search results right now."}
 
     def _generate_conversational_reply(
         self,
         message: str,
         user_id: str,
         emotion: str,
-        context: Optional[List[Dict[str, str]]] = None,
     ) -> str:
-        """Dynamic, context-aware dialogue generator for natural human-like chat."""
+        """Native conversational fallback generator."""
         low = message.lower().strip()
 
-        # Greetings
         if re.search(r"^(hi|hello|hey|yo|sup|greetings|namaste|good morning|good evening)\b", low):
-            return "Hey there! I'm here and ready. What's on your mind today?"
+            return "Hey! I'm here and ready. What are we working on today?"
 
-        # Identity questions
         if any(k in low for k in ["who are you", "what are you", "what is your name"]):
             return "I am Nitro Infinity AI — your built-in intelligence engine for reasoning, problem-solving, math, coding, creative design, and learning."
 
-        # How are you / Status
-        if any(k in low for k in ["how are you", "how are you doing", "how's it going"]):
-            if emotion == "happy":
-                return "I'm running great, and glad to see you're in a good mood! What are we tackling next?"
-            return "Doing well and ready to help. What are you working on right now?"
+        if any(k in low for k in ["how are you", "how's it going"]):
+            return "Doing great and ready to help. What's on your mind?"
 
-        # Fun / personality questions
-        if "what can you do" in low or "help me" in low:
-            return (
-                "Here is what we can do together:\n\n"
-                "• **Reasoning & Chat:** Talk through ideas, explore concepts, brainstorm.\n"
-                "• **Math & Logic:** Step-by-step algebra, calculus, and equation solving.\n"
-                "• **Code & Build:** Python, JavaScript, API design, debugging.\n"
-                "• **Image Studio:** Describe any scene to render digital artwork and concepts.\n"
-                "• **Learning & Quizzes:** Step-by-step explanations on any academic topic.\n\n"
-                "Just tell me what you want to jump into!"
-            )
+        if any(k in low for k in ["thank you", "thanks", "thx"]):
+            return "You're very welcome! Let me know if you need anything else."
 
-        # Gratitude
-        if any(k in low for k in ["thank you", "thanks", "thx", "appreciate it"]):
-            return "You're very welcome! Let me know whenever you're ready for the next thing."
-
-        # Agreement / casually continuing
-        if low in ["yes", "yeah", "sure", "ok", "okay", "yep", "cool", "nice"]:
-            return "Sounds good! Tell me where you'd like to take this next."
-
-        # Open-ended dynamic dialogue response
-        # Synthesize a smart, thoughtful response rather than a scripted card
         return (
             f"You brought up an interesting point about **{message}**.\n\n"
             "We can dive deeper into the mechanics, work out a practical example, "
