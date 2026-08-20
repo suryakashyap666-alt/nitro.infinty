@@ -1,8 +1,3 @@
-"""
-ai-backend/app/api/providers.py
-
-GET /api/v1/providers — Catalog of Nitro AI native system roles.
-"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -28,7 +23,7 @@ def get_providers() -> Dict[str, Any]:
             "providerId": "nitro",
             "displayName": "Nitro Infinity AI",
             "description": "Self-contained native AI engine with memory, bots, and multimodal capabilities.",
-            "isDefault": true,
+            "isDefault": True,
             "roles": NITRO_SYSTEM_ROLES,
         }
     }

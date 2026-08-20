@@ -40,8 +40,6 @@ except (ImportError, ValueError):
 
 
 class AIRouter:
-    """Internal task routing orchestrator for Nitro AI."""
-
     def __init__(self, brain: Any) -> None:
         self.brain = brain
 
@@ -50,14 +48,11 @@ class AIRouter:
 
 
 class TaskAgent:
-    """Background asynchronous task agent for Nitro AI."""
-
     def __init__(self, brain: Any) -> None:
         self.brain = brain
 
     def submit_task(self, task_type: str, user_id: str, payload: Dict[str, Any] | None = None) -> str:
-        tid = str(uuid.uuid4())
-        return tid
+        return str(uuid.uuid4())
 
 
 class CoreBrain:
@@ -83,7 +78,6 @@ class CoreBrain:
 
         self.router = AIRouter(self)
         self.task_agent = TaskAgent(self)
-
         self._executor = ThreadPoolExecutor(max_workers=4)
 
     def _query_free_cloud_model(
@@ -91,9 +85,6 @@ class CoreBrain:
         messages: List[Dict[str, str]],
         system_prompt: Optional[str] = None,
     ) -> Optional[str]:
-        """Queries free cloud serverless open models using your repository secrets.
-        Zero laptop CPU load, zero cost.
-        """
         api_key = (
             os.environ.get("NITRO_CLOUD_API_KEY")
             or os.environ.get("OPENROUTER_API_KEY")
@@ -106,7 +97,6 @@ class CoreBrain:
         model_name = os.environ.get("NITRO_FREE_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
 
         url = f"{base_url}/chat/completions"
-
         conversation_payload = []
         if system_prompt:
             conversation_payload.append({"role": "system", "content": system_prompt})
@@ -280,7 +270,6 @@ class CoreBrain:
         user_id: str,
         emotion: str,
     ) -> str:
-        """Native conversational fallback generator."""
         low = message.lower().strip()
 
         if re.search(r"^(hi|hello|hey|yo|sup|greetings|namaste|good morning|good evening)\b", low):

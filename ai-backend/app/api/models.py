@@ -1,8 +1,3 @@
-"""
-ai-backend/app/api/models.py
-
-GET /api/v1/models — Returns native Nitro AI model catalog.
-"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

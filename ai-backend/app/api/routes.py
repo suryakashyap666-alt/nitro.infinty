@@ -1,25 +1,16 @@
-"""
-ai-backend/app/api/routes.py
-
-POST /api/v1/chat — Primary authenticated Nitro AI Chat completion endpoint.
-Supports SSE streaming and standard JSON responses with API Key validation.
-"""
 from __future__ import annotations
 
 import json
 import os
 from typing import List, Literal, Optional
 
-from fastapi import APIRouter, Header, HTTPException, Security
+from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
-from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field, field_validator
 
 from engines.router import EngineError, resolve_engine
 
 router = APIRouter(prefix="/api/v1", tags=["chat"])
-
-api_key_header_auth = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 class ChatMessage(BaseModel):
@@ -91,7 +82,6 @@ async def chat(
     verified_key = _verify_api_key(payload.userApiKey, x_api_key, authorization)
 
     if payload.stream is False:
-        # Non-streaming direct response
         from brain.core import CoreBrain
         from legacy.bots_engine import BotMarketplaceEngine
 

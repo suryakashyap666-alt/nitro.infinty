@@ -1,27 +1,17 @@
 from __future__ import annotations
 
-import re
-from typing import Any, Dict, List, Optional
-from .memory import MemoryEngine
+from typing import Any, Dict, Optional
 
 
 class ContextEngine:
-    """Natural context and reference resolution engine."""
+    """Context and reference resolution engine."""
 
-    def __init__(self, storage_path: str) -> None:
-        self.memory = MemoryEngine(storage_path=storage_path)
+    def __init__(self, storage_path: str = "") -> None:
+        pass
 
-    def analyze_message(
-        self,
-        user_id: str,
-        message: str,
-        bot_id: Optional[str] = None,
-        use_saved_history: bool = True,
-        use_user_prefs: bool = True,
-    ) -> Dict[str, Any]:
-        clean = (message or "").strip()
+    def analyze_message(self, user_id: str, message: str, bot_id: Optional[str] = None, use_saved_history: bool = True) -> Dict[str, Any]:
         return {
-            "resolved_message": clean,
+            "resolved_message": (message or "").strip(),
             "confidence": 1.0,
             "intent": "chat",
             "clarification": None,

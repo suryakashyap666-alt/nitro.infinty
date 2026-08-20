@@ -1,8 +1,3 @@
-"""
-ai-backend/app/api/health.py
-
-GET /api/v1/health — Versioned health check for Nitro AI.
-"""
 from __future__ import annotations
 
 from typing import Any, Dict

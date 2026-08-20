@@ -1,8 +1,3 @@
-"""
-ai-backend/engines/nitro_brain_engine.py
-
-Asynchronous CoreBrain engine connector.
-"""
 from __future__ import annotations
 
 import asyncio
@@ -81,7 +76,7 @@ class NitroBrainEngine(BaseEngine):
                 model=model,
             )
         except Exception as exc:
-            raise EngineError(f"Nitro brain engine execution failed: {exc}", status_code=500) from exc
+            raise EngineError(f"Nitro brain engine failed: {exc}", status_code=500) from exc
 
         reply_text = ""
         if isinstance(result, dict):

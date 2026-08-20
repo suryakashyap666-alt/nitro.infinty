@@ -1,9 +1,3 @@
-"""
-ai-backend/engines/router.py
-
-Strict, native Nitro AI Engine Router.
-Streams completions directly from CoreBrain without third-party dependencies.
-"""
 from __future__ import annotations
 
 import json
@@ -44,11 +38,7 @@ def _sse_chunk(piece: str) -> str:
 
 
 class NitroNativeEngine(BaseEngine):
-    """Direct streaming adapter for Nitro Infinity AI Core."""
     provider_id = "nitro"
-
-    def __init__(self) -> None:
-        pass
 
     async def stream_chat(
         self,
@@ -93,7 +83,6 @@ class NitroNativeEngine(BaseEngine):
         if not reply_text:
             reply_text = "Nitro AI has processed your request."
 
-        # Emit image generation payload if generated
         if isinstance(result, dict) and result.get("imageAction"):
             img_action = result.get("imageAction", {})
             img_payload = {
@@ -107,7 +96,6 @@ class NitroNativeEngine(BaseEngine):
             yield f"data: {json.dumps(img_payload)}\n\n"
             return
 
-        # Stream text response tokens
         words = reply_text.split(" ")
         for i, word in enumerate(words):
             piece = word if i == len(words) - 1 else f"{word} "

@@ -1,9 +1,3 @@
-"""
-ai-backend/app/main.py
-
-Unified FastAPI Application for Nitro Infinity AI Engine & API.
-Supports /api/v1/* routes, root status endpoint, and legacy route aliases.
-"""
 from __future__ import annotations
 
 import os
@@ -16,7 +10,7 @@ if str(BASE_DIR) not in sys.path:
 
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 
 from brain.core import CoreBrain
 from legacy.bots_engine import BotMarketplaceEngine
@@ -32,7 +26,6 @@ DATA_DIR = os.environ.get("NITRO_DATA_DIR") or str(BASE_DIR / "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 STATE_FILE = os.path.join(DATA_DIR, "nitro_state.json")
 
-# Initialize persistent Nitro AI Marketplace and Core Brain
 BOT_MARKET = BotMarketplaceEngine(storage_path=STATE_FILE)
 BOT_MARKET.ensure_default_bots()
 BRAIN = CoreBrain(storage_path=STATE_FILE, bot_market=BOT_MARKET)
@@ -65,18 +58,14 @@ app.add_middleware(
 app.state.brain = BRAIN
 app.state.bot_market = BOT_MARKET
 
-# Mount API v1 Routers
 app.include_router(chat_v1_router)
 app.include_router(health_v1_router)
 app.include_router(models_v1_router)
 app.include_router(providers_v1_router)
-
-# Mount Studio Routers
 app.include_router(image_router)
 app.include_router(puzzle_router)
 
 
-# Root Overview Route
 @app.get("/")
 def root() -> dict:
     return {
@@ -88,12 +77,11 @@ def root() -> dict:
             "health": "GET /api/v1/health",
             "bots": "GET /api/v1/bots",
             "models": "GET /api/v1/models",
-            "interactive_docs": "GET /docs"
+            "interactive_docs": "GET /docs",
         },
     }
 
 
-# Health Check
 @app.get("/health")
 def health() -> dict:
     return {
@@ -104,7 +92,6 @@ def health() -> dict:
     }
 
 
-# Bots Listing
 @app.get("/bots")
 @app.get("/api/v1/bots")
 def list_bots(query: str = "") -> dict:
@@ -113,7 +100,6 @@ def list_bots(query: str = "") -> dict:
     return {"ok": True, "bots": filter_bots(bots_list, query)}
 
 
-# Alias for legacy /chat & /api/chat requests
 @app.post("/chat")
 @app.post("/api/chat")
 async def chat_alias(
