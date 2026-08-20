@@ -76,8 +76,8 @@ async def _sse_stream(payload: ChatRequestPayload, verified_key: Optional[str]):
 @router.post("/chat")
 async def chat(
     payload: ChatRequestPayload,
-    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
-    authorization: Optional[str] = Header(None),
+    x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
+    authorization: Optional[str] = Header(default=None),
 ):
     verified_key = _verify_api_key(payload.userApiKey, x_api_key, authorization)
 
